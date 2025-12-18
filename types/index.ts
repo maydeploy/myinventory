@@ -1,4 +1,4 @@
-export type Brand =
+export type KnownBrand =
   | 'Apple'
   | 'Floyd'
   | 'Ikea'
@@ -11,25 +11,29 @@ export type Brand =
   | 'Blunt'
   | 'Nigh Collective'
 
+// Allow arbitrary brand strings coming from the database (Notion), while still
+// keeping autocomplete for known brands.
+export type Brand = KnownBrand | (string & {})
+
 export type Category =
   | 'tech'
   | 'home'
-  | 'workspace'
-  | 'pet'
-  | 'essentials'
+  | 'essential'
   | 'wishlist'
-  | 'games'
+  | 'game'
   | 'software'
+  | 'watchlist'
 
 export interface Product {
   id: string
   name: string
-  brand: Brand
+  brand?: Brand
   category: Category
   price: number
   note: string
   url: string
   coverImage: string
+  darkModeCoverImage?: string
   date: string
   createdTime: string
 }
@@ -44,8 +48,8 @@ export type SortOption =
   | 'name-asc'
   | 'name-desc'
 
+export type CategoryFilter = 'all' | Category
+
 export interface FilterState {
-  categories: Category[]
-  brands: Brand[]
-  priceRange: [number, number]
+  category: CategoryFilter
 }

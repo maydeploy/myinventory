@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import type { Brand, Category, DisplayMode, FilterState, SortOption } from '@/types'
+import { useEffect, useState } from 'react'
+import type { Category, CategoryFilter, DisplayMode, FilterState, SortOption } from '@/types'
 
 type InventoryMode = 'physical' | 'digital'
 
@@ -14,25 +14,21 @@ interface HeaderProps {
   onSortChange: (option: SortOption) => void
   displayMode: DisplayMode
   onDisplayModeChange: (mode: DisplayMode) => void
-  onFilterToggle: () => void
-  filterOpen: boolean
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
-  allBrands: Brand[]
 }
 
 const physicalCategories: { value: Category; label: string }[] = [
   { value: 'tech', label: 'tech' },
   { value: 'home', label: 'home' },
-  { value: 'workspace', label: 'workspace' },
-  { value: 'pet', label: 'pet' },
-  { value: 'essentials', label: 'essentials' },
+  { value: 'essential', label: 'essential' },
   { value: 'wishlist', label: 'wishlist' },
 ]
 
 const digitalCategories: { value: Category; label: string }[] = [
-  { value: 'games', label: 'games' },
+  { value: 'game', label: 'game' },
   { value: 'software', label: 'software' },
+  { value: 'watchlist', label: 'watch list' },
 ]
 
 export default function Header({
@@ -44,15 +40,31 @@ export default function Header({
   onSortChange,
   displayMode,
   onDisplayModeChange,
-  onFilterToggle,
-  filterOpen,
   filters,
   onFiltersChange,
-  allBrands,
 }: HeaderProps) {
   const [isSortOpen, setIsSortOpen] = useState(false)
   const [isViewOpen, setIsViewOpen] = useState(false)
+  const [isDark, setIsDark] = useState(false)
   const categoryOptions = inventoryMode === 'digital' ? digitalCategories : physicalCategories
+
+  useEffect(() => {
+    const stored = typeof window !== 'undefined' ? window.localStorage.getItem('theme') : null
+    const prefersDark =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    const shouldBeDark = stored ? stored === 'dark' : prefersDark
+    setIsDark(shouldBeDark)
+    document.documentElement.classList.toggle('dark', shouldBeDark)
+  }, [])
+
+  const toggleTheme = () => {
+    const next = !isDark
+    setIsDark(next)
+    document.documentElement.classList.toggle('dark', next)
+    window.localStorage.setItem('theme', next ? 'dark' : 'light')
+  }
 
   const sortOptions: { value: SortOption; label: string }[] = [
     { value: 'date-desc', label: 'newest first' },
@@ -71,227 +83,209 @@ export default function Header({
   ]
 
   const toggleCategory = (category: Category) => {
-    const newCategories = filters.categories.includes(category)
-      ? filters.categories.filter(c => c !== category)
-      : [...filters.categories, category]
-    onFiltersChange({ ...filters, categories: newCategories })
+    onFiltersChange({ ...filters, category })
   }
-
-  const toggleBrand = (brand: Brand) => {
-    const newBrands = filters.brands.includes(brand)
-      ? filters.brands.filter(b => b !== brand)
-      : [...filters.brands, brand]
-    onFiltersChange({ ...filters, brands: newBrands })
+  const setCategoryFilter = (category: CategoryFilter) => {
+    onFiltersChange({ ...filters, category })
   }
-
-  // Get top 6 brands by count
-  const brandCounts = allBrands.reduce((acc, brand) => {
-    acc[brand] = (acc[brand] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-
-  const topBrands = Object.entries(brandCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 6)
-    .map(([brand]) => brand as Brand)
 
   return (
     <>
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-paper border-b border-border">
-        <div className="px-4 py-3 md:px-8 text-center">
-          <div className="flex items-center justify-start">
-            <h1
-              className="font-display text-[36px] font-bold text-ink"
+      {/* Top-left controls (theme + sort + view) */}
+      <div className="fixed top-3 left-3 z-50">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light bg-paper"
+            aria-label={isDark ? 'Turn the lights on (light mode)' : 'Turn the lights off (dark mode)'}
+          >
+            {isDark ? '[turn the lights on]' : '[turn the lights off]'}
+          </button>
+
+          {/* Sort dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light bg-paper"
             >
-              MY//INVENTORY
-            </h1>
+              {sortOptions.find(opt => opt.value === sortOption)?.label || 'sort'}
+            </button>
 
-            <div className="flex items-center gap-2">
-              <div className="flex items-center border border-border">
-                <button
-                  onClick={() => onInventoryModeChange('physical')}
-                  className={`px-2 py-1 transition-all text-xs ${
-                    inventoryMode === 'physical'
-                      ? 'bg-paper-dark text-ink font-bold'
-                      : 'text-ink-light hover:text-ink'
-                  }`}
-                  aria-label="Show physical categories"
-                >
-                  [physical]
-                </button>
-                <button
-                  onClick={() => onInventoryModeChange('digital')}
-                  className={`px-2 py-1 transition-all text-xs border-l border-border ${
-                    inventoryMode === 'digital'
-                      ? 'bg-paper-dark text-ink font-bold'
-                      : 'text-ink-light hover:text-ink'
-                  }`}
-                  aria-label="Show digital categories"
-                >
-                  [digital]
-                </button>
-              </div>
-              <button
-                onClick={onFilterToggle}
-                className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light"
-                aria-label="Toggle filters"
-              >
-                [filters]
-              </button>
-
-              {/* Sort dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsSortOpen(!isSortOpen)}
-                  className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light"
-                >
-                  {sortOptions.find(opt => opt.value === sortOption)?.label || 'sort'}
-                </button>
-
-                {isSortOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsSortOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-1 w-48 bg-paper border border-border shadow-lg z-50">
-                      {sortOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => {
-                            onSortChange(option.value)
-                            setIsSortOpen(false)
-                          }}
-                          className={`w-full px-3 py-2 text-left hover:bg-paper-dark transition-all text-xs ${
-                            sortOption === option.value
-                              ? 'bg-paper-dark text-ink font-bold'
-                              : 'text-ink-light'
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Display mode toggle */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsViewOpen(!isViewOpen)}
-                  className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light"
-                  aria-label="Change view mode"
-                >
-                  [{viewOptions.find(v => v.value === displayMode)?.label || 'view'}]
-                </button>
-
-                {isViewOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setIsViewOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-1 w-40 bg-paper border border-border shadow-lg z-50">
-                      {viewOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => {
-                            onDisplayModeChange(option.value)
-                            setIsViewOpen(false)
-                          }}
-                          className={`w-full px-3 py-2 text-left hover:bg-paper-dark transition-all text-xs ${
-                            displayMode === option.value
-                              ? 'bg-paper-dark text-ink font-bold'
-                              : 'text-ink-light'
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Bottom Command Line */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-paper border-t border-border">
-        <div className="px-4 py-2 md:px-8">
-          <div className="flex items-center gap-2 font-mono text-sm">
-            <span className="text-ink-lighter">{'>'}</span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="search..."
-              className="flex-1 bg-transparent border-none focus:outline-none text-ink placeholder-ink-lighter"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => onSearchChange('')}
-                className="text-ink-lighter hover:text-ink transition-colors text-xs"
-                aria-label="Clear search"
-              >
-                [clear]
-              </button>
+            {isSortOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsSortOpen(false)}
+                />
+                <div className="absolute left-0 mt-1 w-48 bg-paper border border-border shadow-lg z-50">
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        onSortChange(option.value)
+                        setIsSortOpen(false)
+                      }}
+                      className={`w-full px-3 py-2 text-left hover:bg-paper-dark transition-all text-xs ${
+                        sortOption === option.value
+                          ? 'bg-paper-dark text-ink font-bold'
+                          : 'text-ink-light'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
-          {filterOpen && (
-            <div className="mt-2 pt-2 border-t border-border font-mono text-xs">
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                <div>
-                  <div className="text-ink-lighter uppercase tracking-wider mb-2">category</div>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                    {categoryOptions.map((cat) => (
-                      <button
-                        key={cat.value}
-                        onClick={() => toggleCategory(cat.value)}
-                        className={`block w-full text-left px-2 py-1 transition-colors ${
-                          filters.categories.includes(cat.value)
-                            ? 'text-ink bg-paper-dark'
-                            : 'text-ink-light hover:text-ink'
-                        }`}
-                      >
-                        {filters.categories.includes(cat.value) ? '• ' : '  '}
-                        {cat.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+          {/* Display mode toggle */}
+          <div className="relative">
+            <button
+              onClick={() => setIsViewOpen(!isViewOpen)}
+              className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light bg-paper"
+              aria-label="Change view mode"
+            >
+              [{viewOptions.find(v => v.value === displayMode)?.label || 'view'}]
+            </button>
 
-                <div>
-                  <div className="text-ink-lighter uppercase tracking-wider mb-2">brand</div>
-                  {topBrands.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                      {topBrands.map((brand) => (
-                        <button
-                          key={brand}
-                          onClick={() => toggleBrand(brand)}
-                          className={`block w-full text-left px-2 py-1 transition-colors ${
-                            filters.brands.includes(brand)
-                              ? 'text-ink bg-paper-dark'
-                              : 'text-ink-light hover:text-ink'
-                          }`}
-                        >
-                          {filters.brands.includes(brand) ? '• ' : '  '}
-                          {brand}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-ink-lighter px-2 py-1 italic">no brands</div>
-                  )}
+            {isViewOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsViewOpen(false)}
+                />
+                <div className="absolute left-0 mt-1 w-40 bg-paper border border-border shadow-lg z-50">
+                  {viewOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        onDisplayModeChange(option.value)
+                        setIsViewOpen(false)
+                      }}
+                      className={`w-full px-3 py-2 text-left hover:bg-paper-dark transition-all text-xs ${
+                        displayMode === option.value
+                          ? 'bg-paper-dark text-ink font-bold'
+                          : 'text-ink-light'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
                 </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
 
+      {/* Bottom-left title block (sits ABOVE the divider line) */}
+      <div className="fixed left-0 right-0 bottom-16 z-40 align-middle">
+        <div className="px-4 py-2 md:px-8 align-middle">
+          <div className="flex items-start justify-between gap-0 align-middle">
+            <div className="font-display text-ink leading-[0.95] text-left inline-block align-middle mb-0">
+              <div className="text-[36px] md:text-[44px] font-bold h-[34px] leading-[34px] align-middle">
+                GRID OF
+              </div>
+              <div className="text-[36px] md:text-[44px] font-bold h-[34px] leading-[34px] align-middle">
+                GOOD
+              </div>
+              <div className="text-[36px] md:text-[44px] font-bold select-none h-[34px] leading-[34px] align-middle">
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onInventoryModeChange('physical')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') onInventoryModeChange('physical')
+                  }}
+                  className={`cursor-pointer transition-opacity ${
+                    inventoryMode === 'physical' ? 'opacity-100' : 'opacity-40'
+                  }`}
+                  aria-label="Show physical categories"
+                >
+                  PHYSICAL
+                </span>
+                <span className="opacity-100">{"/"}</span>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onInventoryModeChange('digital')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') onInventoryModeChange('digital')
+                  }}
+                  className={`cursor-pointer transition-opacity ${
+                    inventoryMode === 'digital' ? 'opacity-100' : 'opacity-40'
+                  }`}
+                  aria-label="Show digital categories"
+                >
+                  DIGITAL
+                </span>
+              </div>
+              <div className="text-[36px] md:text-[44px] font-bold h-[34px] leading-[34px] align-middle">
+                THINGS
               </div>
             </div>
-          )}
+
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Command Line (search bar) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-paper border-t border-border">
+        <div className="px-4 py-2 md:px-8">
+          <div className="flex flex-col gap-2">
+            {/* Filters (below divider, above search) */}
+            <div className="flex flex-wrap gap-x-2 gap-y-1 font-mono text-xs">
+              <button
+                onClick={() => setCategoryFilter('all')}
+                className={`px-2 py-1 transition-colors ${
+                  filters.category === 'all'
+                    ? 'text-ink bg-paper-dark'
+                    : 'text-ink-light hover:text-ink'
+                }`}
+                aria-label="Show all categories"
+              >
+                {filters.category === 'all' ? '• ' : '  '}
+                all
+              </button>
+
+              {categoryOptions.map((cat) => (
+                <button
+                  key={cat.value}
+                  onClick={() => toggleCategory(cat.value)}
+                  className={`px-2 py-1 transition-colors ${
+                    filters.category === cat.value
+                      ? 'text-ink bg-paper-dark'
+                      : 'text-ink-light hover:text-ink'
+                  }`}
+                >
+                  {filters.category === cat.value ? '• ' : '  '}
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Search */}
+            <div className="flex items-center gap-2 font-mono text-sm">
+              <span className="text-ink-lighter">{'>'}</span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder="search..."
+                className="flex-1 bg-transparent border-none focus:outline-none text-ink placeholder-ink-lighter"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => onSearchChange('')}
+                  className="text-ink-lighter hover:text-ink transition-colors text-xs"
+                  aria-label="Clear search"
+                >
+                  [clear search]
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

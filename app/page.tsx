@@ -10,8 +10,28 @@ import DotGrid from '@/components/DotGrid'
 import ProductStackView from '@/components/ProductStackView'
 import ProductShuffleView from '@/components/ProductShuffleView'
 import type { Category, Product, DisplayMode, FilterState, SortOption } from '@/types'
+import { isDigitalCategory } from '@/lib/categories'
 
-const fetcher = (url: string) => fetch(url).then(res => res.json())
+const fetcher = async (url: string) => {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 10000)
+  const res = await fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timeout))
+  const text = await res.text()
+  let data: any
+  try {
+    data = text ? JSON.parse(text) : null
+  } catch {
+    data = null
+  }
+  if (!res.ok) {
+    const msg =
+      (data && (data.error || data.message)) ? String(data.error || data.message)
+        : text ? text.slice(0, 200)
+          : `HTTP ${res.status}`
+    throw new Error(msg)
+  }
+  return data
+}
 
 type InventoryMode = 'physical' | 'digital'
 
@@ -27,22 +47,20 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOption, setSortOption] = useState<SortOption>('name-asc')
   const [filters, setFilters] = useState<FilterState>({
-    categories: [],
-    brands: [],
-    priceRange: [0, 1000],
+    category: 'all',
   })
-  const [filterOpen, setFilterOpen] = useState(false)
   const [stackCategory, setStackCategory] = useState<Category | null>(null)
 
   const handleInventoryModeChange = (mode: InventoryMode) => {
     setInventoryMode(mode)
-    // Reset category/brand filters when switching modes so we don't end up with invalid selections.
-    setFilters((prev) => ({ ...prev, categories: [], brands: [] }))
+    // Reset category filters when switching modes so we don't end up with invalid selections.
+    setFilters((prev) => ({ ...prev, category: 'all' }))
     setStackCategory(null)
   }
 
+
   const modeFilteredProducts = (data?.products || []).filter((product) => {
-    const isDigital = product.category === 'games' || product.category === 'software'
+    const isDigital = isDigitalCategory(product.category)
     return inventoryMode === 'digital' ? isDigital : !isDigital
   })
 
@@ -53,23 +71,13 @@ export default function Home() {
       const query = searchQuery.toLowerCase()
       const matchesSearch =
         product.name.toLowerCase().includes(query) ||
-        product.brand.toLowerCase().includes(query) ||
+        (product.brand ? product.brand.toLowerCase().includes(query) : false) ||
         product.note?.toLowerCase().includes(query)
       if (!matchesSearch) return false
     }
 
     // Category filter
-    if (filters.categories.length > 0 && !filters.categories.includes(product.category)) {
-      return false
-    }
-
-    // Brand filter
-    if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
-      return false
-    }
-
-    // Price filter
-    if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
+    if (filters.category !== 'all' && product.category !== filters.category) {
       return false
     }
 
@@ -98,16 +106,13 @@ export default function Home() {
 
   const handleClearFilters = () => {
     setFilters({
-      categories: [],
-      brands: [],
-      priceRange: [0, 1000],
+      category: 'all',
     })
     setSearchQuery('')
   }
 
   const hasActiveFilters =
-    filters.categories.length > 0 ||
-    filters.brands.length > 0 ||
+    filters.category !== 'all' ||
     searchQuery !== ''
 
   return (
@@ -123,78 +128,78 @@ export default function Home() {
         onSortChange={setSortOption}
         displayMode={displayMode}
         onDisplayModeChange={setDisplayMode}
-        onFilterToggle={() => setFilterOpen(!filterOpen)}
-        filterOpen={filterOpen}
         filters={filters}
         onFiltersChange={setFilters}
-        allBrands={Array.from(new Set(modeFilteredProducts.map(p => p.brand)))}
       />
 
-      <div className="flex">
-        <main className={`flex-1 p-4 md:p-8 ${filterOpen ? 'pb-64' : 'pb-16'}`}>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <p className="text-ink-lighter font-mono text-sm">loading...</p>
-              </div>
+      <main className="flex-1 p-4 md:p-8 pb-44 md:pb-[13.5rem]">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <p className="text-ink-lighter font-mono text-sm">loading...</p>
             </div>
-          ) : error ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <p className="text-ink-light font-mono text-sm">connection failed</p>
-                <p className="text-ink-lighter text-xs mt-2">check your network</p>
-              </div>
-            </div>
-          ) : sortedProducts.length === 0 ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <p className="text-ink-lighter font-mono text-sm">
-                  {hasActiveFilters
-                    ? 'no results found'
-                    : 'no items yet'}
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <p className="text-ink-light font-mono text-sm">connection failed</p>
+              <p className="text-ink-lighter text-xs mt-2">check your network</p>
+              {error?.message ? (
+                <p className="text-ink-lighter text-xs mt-2 max-w-md mx-auto break-words">
+                  {String(error.message)}
                 </p>
-              </div>
+              ) : null}
             </div>
-          ) : displayMode === 'grid' ? (
-            <ProductGrid
-              products={sortedProducts}
-              onProductClick={() => {}}
-            />
-          ) : displayMode === 'list' ? (
-            <ProductList
-              products={sortedProducts}
-              onProductClick={() => {}}
-            />
-          ) : displayMode === 'stack' ? (
-            stackCategory ? (
-              <div className="max-w-7xl mx-auto">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-xs font-mono text-ink-lighter">
-                    category: <span className="text-ink">{stackCategory}</span>
-                  </div>
-                  <button
-                    onClick={() => setStackCategory(null)}
-                    className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light"
-                  >
-                    [back to stacks]
-                  </button>
+          </div>
+        ) : sortedProducts.length === 0 ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <p className="text-ink-lighter font-mono text-sm">
+                {hasActiveFilters
+                  ? 'no results found'
+                  : 'no items yet'}
+              </p>
+            </div>
+          </div>
+        ) : displayMode === 'grid' ? (
+          <ProductGrid
+            products={sortedProducts}
+            onProductClick={() => {}}
+          />
+        ) : displayMode === 'list' ? (
+          <ProductList
+            products={sortedProducts}
+            onProductClick={() => {}}
+          />
+        ) : displayMode === 'stack' ? (
+          stackCategory ? (
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-xs font-mono text-ink-lighter">
+                  category: <span className="text-ink">{stackCategory}</span>
                 </div>
-                <ProductGrid
-                  products={sortedProducts.filter(p => p.category === stackCategory)}
-                  onProductClick={() => {}}
-                />
+                <button
+                  onClick={() => setStackCategory(null)}
+                  className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light"
+                >
+                  [back to stacks]
+                </button>
               </div>
-            ) : (
-              <ProductStackView
-                products={sortedProducts}
-                onSelectCategory={(c) => setStackCategory(c)}
+              <ProductGrid
+                products={sortedProducts.filter(p => p.category === stackCategory)}
+                onProductClick={() => {}}
               />
-            )
+            </div>
           ) : (
-            <ProductShuffleView products={sortedProducts} />
-          )}
-        </main>
-      </div>
+            <ProductStackView
+              products={sortedProducts}
+              onSelectCategory={(c) => setStackCategory(c)}
+            />
+          )
+        ) : (
+          <ProductShuffleView products={sortedProducts} />
+        )}
+      </main>
     </div>
   )
 }

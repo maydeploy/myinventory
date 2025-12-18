@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import type { Product } from '@/types'
+import { useIsDarkMode } from '@/lib/useIsDarkMode'
+import { isDigitalCategory } from '@/lib/categories'
 
 interface ProductDetailProps {
   product: Product
@@ -12,13 +14,16 @@ interface ProductDetailProps {
 
 export default function ProductDetail({ product, onClose }: ProductDetailProps) {
   const [ditheredImage, setDitheredImage] = useState<string>('')
+  const isDark = useIsDarkMode()
+  const imageSrc = (isDark && product.darkModeCoverImage) ? product.darkModeCoverImage : product.coverImage
 
   useEffect(() => {
-    if (!product.coverImage) return
+    setDitheredImage('')
+    if (!imageSrc) return
 
     const img = new window.Image()
     img.crossOrigin = 'anonymous'
-    img.src = product.coverImage
+    img.src = imageSrc
 
     img.onload = () => {
       const canvas = document.createElement('canvas')
@@ -49,7 +54,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
       ctx.putImageData(imageData, 0, 0)
       setDitheredImage(canvas.toDataURL())
     }
-  }, [product.coverImage])
+  }, [imageSrc])
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -60,7 +65,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   }, [onClose])
 
   const isWishlist = product.category === 'wishlist'
-  const isDigital = product.category === 'games' || product.category === 'software'
+  const isDigital = isDigitalCategory(product.category)
   const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -86,7 +91,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ duration: 0.15, ease: "easeOut" }}
-          className="relative w-full max-w-md bg-[#FFF9C4] shadow-lg"
+          className="sticky-note relative w-full max-w-md bg-[#FFF9C4] shadow-lg"
           style={{
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           }}
@@ -102,7 +107,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
           <div className="p-6 space-y-4">
             {/* Image */}
-            {ditheredImage || product.coverImage ? (
+            {ditheredImage || imageSrc ? (
               <div className="relative w-full aspect-square flex items-center justify-center mb-4">
                 {ditheredImage ? (
                   <img
@@ -110,9 +115,9 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                     alt={product.name}
                     className="max-w-full max-h-full object-contain"
                   />
-                ) : product.coverImage ? (
+                ) : imageSrc ? (
                   <Image
-                    src={product.coverImage}
+                    src={imageSrc}
                     alt={product.name}
                     fill
                     className="object-contain"
@@ -129,7 +134,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
             {/* Metadata */}
             <div className="space-y-2 text-sm font-mono text-ink-light">
-              {!isDigital && (
+              {product.brand && (
                 <div>
                   <span className="text-ink-lighter">brand:</span> {product.brand}
                 </div>

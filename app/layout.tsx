@@ -19,6 +19,10 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
           rel="stylesheet"
         />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body
         className={`${otBulbMonoline.variable} ${ppMondwest.variable} ${ppNeueBit.variable} font-mono bg-beige text-gray-dark antialiased`}

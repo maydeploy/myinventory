@@ -2,6 +2,8 @@
 
 import Image from 'next/image'
 import type { Product } from '@/types'
+import { useIsDarkMode } from '@/lib/useIsDarkMode'
+import { isDigitalCategory } from '@/lib/categories'
 
 interface ProductListProps {
   products: Product[]
@@ -32,13 +34,15 @@ function ProductListItem({
   onClick: () => void
   index: number
 }) {
+  const isDark = useIsDarkMode()
   const isWishlist = product.category === 'wishlist'
-  const isDigital = product.category === 'games' || product.category === 'software'
+  const isDigital = isDigitalCategory(product.category)
   const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
   })
+  const imageSrc = (isDark && product.darkModeCoverImage) ? product.darkModeCoverImage : product.coverImage
 
   const handleClick = () => {
     if (product.url) {
@@ -58,17 +62,17 @@ function ProductListItem({
     >
       {/* Sticky Note on Hover */}
       {product.note && (
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 bg-[#FFF9C4] shadow-lg p-4 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-10 origin-center transform scale-90 group-hover:scale-100 rotate-2"
+        <div className="sticky-note absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 bg-[#FFF9C4] shadow-lg p-4 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-10 origin-center transform scale-90 group-hover:scale-100 rotate-2 translate-x-[10%] translate-y-[120%]"
           style={{
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
           }}
         >
-          <div className="flex flex-col justify-between min-h-28 text-xs font-mono text-ink">
-            <div className="text-[10px] leading-tight line-clamp-8">
+          <div className="flex flex-col justify-between min-h-28 text-lg font-mono text-ink">
+            <div className="text-base leading-snug line-clamp-8">
               {product.note}
             </div>
 
-            <div className="pt-2 text-ink-lighter text-[10px] text-left">
+            <div className="pt-2 text-ink-lighter text-sm text-left">
               {formattedDate}
             </div>
           </div>
@@ -76,17 +80,17 @@ function ProductListItem({
       )}
 
       {/* Thumbnail */}
-      <div className="relative w-12 h-12 flex-shrink-0 border border-border flex items-center justify-center">
-        {product.coverImage ? (
+      <div className="relative w-12 h-12 flex-shrink-0 border border-border flex items-center justify-center bg-white">
+        {imageSrc ? (
           <Image
-            src={product.coverImage}
+            src={imageSrc}
             alt={product.name}
             fill
             className="object-contain"
             sizes="48px"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-lg text-ink-lighter">
+          <div className="w-full h-full flex items-center justify-center text-lg bg-white text-[#c9c9c9]">
             [ ]
           </div>
         )}
@@ -99,8 +103,8 @@ function ProductListItem({
         </p>
       </div>
 
-      {/* Brand (physical only) */}
-      {!isDigital && (
+      {/* Brand (if present) */}
+      {product.brand && (
         <div className="w-24 hidden md:block">
           <span className="text-xs text-ink-lighter font-mono">
             {product.brand}

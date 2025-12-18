@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { FilterState, Category, Brand } from '@/types'
+import type { FilterState, Category } from '@/types'
 
 type InventoryMode = 'physical' | 'digital'
 
@@ -12,21 +12,19 @@ interface FilterSidebarProps {
   isOpen: boolean
   onClose: () => void
   totalProducts: number
-  allBrands: Brand[]
 }
 
 const physicalCategories: { value: Category; label: string }[] = [
   { value: 'tech', label: 'tech' },
   { value: 'home', label: 'home' },
-  { value: 'workspace', label: 'workspace' },
-  { value: 'pet', label: 'pet' },
-  { value: 'essentials', label: 'essentials' },
+  { value: 'essential', label: 'essential' },
   { value: 'wishlist', label: 'wishlist' },
 ]
 
 const digitalCategories: { value: Category; label: string }[] = [
-  { value: 'games', label: 'games' },
+  { value: 'game', label: 'game' },
   { value: 'software', label: 'software' },
+  { value: 'watchlist', label: 'watch list' },
 ]
 
 export default function FilterSidebar({
@@ -36,34 +34,12 @@ export default function FilterSidebar({
   isOpen,
   onClose,
   totalProducts,
-  allBrands,
 }: FilterSidebarProps) {
   const categoryOptions = inventoryMode === 'digital' ? digitalCategories : physicalCategories
 
   const toggleCategory = (category: Category) => {
-    const newCategories = filters.categories.includes(category)
-      ? filters.categories.filter(c => c !== category)
-      : [...filters.categories, category]
-    onFiltersChange({ ...filters, categories: newCategories })
+    onFiltersChange({ ...filters, category })
   }
-
-  const toggleBrand = (brand: Brand) => {
-    const newBrands = filters.brands.includes(brand)
-      ? filters.brands.filter(b => b !== brand)
-      : [...filters.brands, brand]
-    onFiltersChange({ ...filters, brands: newBrands })
-  }
-
-  // Get top 5 brands by count
-  const brandCounts = allBrands.reduce((acc, brand) => {
-    acc[brand] = (acc[brand] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-
-  const topBrands = Object.entries(brandCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5)
-    .map(([brand]) => brand as Brand)
 
   return (
     <>
@@ -100,47 +76,33 @@ export default function FilterSidebar({
               Category
             </h3>
             <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+              <button
+                onClick={() => onFiltersChange({ ...filters, category: 'all' })}
+                className={`block w-full text-left px-2 py-1 text-xs font-mono transition-colors ${
+                  filters.category === 'all'
+                    ? 'text-ink bg-paper-dark'
+                    : 'text-ink-light hover:text-ink'
+                }`}
+              >
+                {filters.category === 'all' ? '• ' : '  '}
+                all
+              </button>
               {categoryOptions.map((cat) => (
                 <button
                   key={cat.value}
                   onClick={() => toggleCategory(cat.value)}
                   className={`block w-full text-left px-2 py-1 text-xs font-mono transition-colors ${
-                    filters.categories.includes(cat.value)
+                    filters.category === cat.value
                       ? 'text-ink bg-paper-dark'
                       : 'text-ink-light hover:text-ink'
                   }`}
                 >
-                  {filters.categories.includes(cat.value) ? '• ' : '  '}
+                  {filters.category === cat.value ? '• ' : '  '}
                   {cat.label}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Brand filter - top 5 only */}
-          {topBrands.length > 0 && (
-            <div>
-              <h3 className="text-xs font-mono text-ink-lighter mb-3 uppercase tracking-wider">
-                Brand
-              </h3>
-              <div className="space-y-2">
-                {topBrands.map((brand) => (
-                  <button
-                    key={brand}
-                    onClick={() => toggleBrand(brand)}
-                    className={`block w-full text-left px-2 py-1 text-xs font-mono transition-colors ${
-                      filters.brands.includes(brand)
-                        ? 'text-ink bg-paper-dark'
-                        : 'text-ink-light hover:text-ink'
-                    }`}
-                  >
-                    {filters.brands.includes(brand) ? '• ' : '  '}
-                    {brand}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
         </div>
       </aside>

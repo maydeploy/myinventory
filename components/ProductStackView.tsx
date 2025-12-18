@@ -1,14 +1,15 @@
+'use client'
+
 import type { Category, Product } from '@/types'
 import Image from 'next/image'
+import { useIsDarkMode } from '@/lib/useIsDarkMode'
 
 const categories: { value: Category; label: string }[] = [
   { value: 'tech', label: 'tech' },
   { value: 'home', label: 'home' },
-  { value: 'workspace', label: 'workspace' },
-  { value: 'pet', label: 'pet' },
-  { value: 'essentials', label: 'essentials' },
+  { value: 'essential', label: 'essential' },
   { value: 'wishlist', label: 'wishlist' },
-  { value: 'games', label: 'games' },
+  { value: 'game', label: 'game' },
   { value: 'software', label: 'software' },
 ]
 
@@ -19,6 +20,7 @@ export default function ProductStackView({
   products: Product[]
   onSelectCategory: (category: Category) => void
 }) {
+  const isDark = useIsDarkMode()
   const byCategory = categories
     .map((c) => ({
       ...c,
@@ -51,22 +53,22 @@ export default function ProductStackView({
                 {previews.map((p, idx) => (
                   <div
                     key={p.id}
-                    className="absolute top-0 left-0 w-full h-full border border-border bg-paper overflow-hidden"
+                    className="absolute top-0 left-0 w-full h-full border border-border bg-white overflow-hidden"
                     style={{
                       transform: `translate(${idx * 10}px, ${idx * 10}px) rotate(${idx * 1.2}deg)`,
                       zIndex: previews.length - idx,
                     }}
                   >
-                    {p.coverImage ? (
+                    {(isDark && p.darkModeCoverImage ? p.darkModeCoverImage : p.coverImage) ? (
                       <Image
-                        src={p.coverImage}
+                        src={(isDark && p.darkModeCoverImage) ? p.darkModeCoverImage : p.coverImage}
                         alt={p.name}
                         fill
                         className="object-cover opacity-70"
                         sizes="(max-width: 768px) 100vw, 33vw"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl text-ink-lighter">
+                      <div className="w-full h-full flex items-center justify-center text-4xl bg-white text-[#c9c9c9]">
                         [ ]
                       </div>
                     )}
