@@ -51,7 +51,7 @@ function ProductListItem({
       onClick={handleClick}
       className={`
         w-full flex items-center gap-3 p-3 relative group
-        border-b border-border hover:bg-paper-dark transition-all
+        ${isDigital ? '' : 'border-b border-border'} hover:bg-paper-dark transition-all
         ${index % 2 === 0 ? 'bg-white' : 'bg-paper'}
         ${product.url ? 'cursor-pointer' : 'cursor-default'}
       `}

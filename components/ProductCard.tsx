@@ -95,13 +95,13 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
             <span>{product.category}</span>
           </div>
 
-          <div className="flex items-center justify-between border-t border-border pt-2">
-            {!isDigital && (
+          {!isDigital && (
+            <div className="flex items-center justify-between border-t border-border pt-2">
               <p className="text-sm font-bold text-ink font-mono">
                 ${product.price.toFixed(2)}
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
