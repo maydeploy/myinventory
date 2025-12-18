@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import type { FilterState, Category, Brand } from '@/types'
 
+type InventoryMode = 'physical' | 'digital'
+
 interface FilterSidebarProps {
+  inventoryMode: InventoryMode
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
   isOpen: boolean
@@ -12,18 +15,22 @@ interface FilterSidebarProps {
   allBrands: Brand[]
 }
 
-const categories: { value: Category; label: string }[] = [
+const physicalCategories: { value: Category; label: string }[] = [
   { value: 'tech', label: 'tech' },
   { value: 'home', label: 'home' },
   { value: 'workspace', label: 'workspace' },
   { value: 'pet', label: 'pet' },
   { value: 'essentials', label: 'essentials' },
   { value: 'wishlist', label: 'wishlist' },
+]
+
+const digitalCategories: { value: Category; label: string }[] = [
   { value: 'games', label: 'games' },
   { value: 'software', label: 'software' },
 ]
 
 export default function FilterSidebar({
+  inventoryMode,
   filters,
   onFiltersChange,
   isOpen,
@@ -31,6 +38,8 @@ export default function FilterSidebar({
   totalProducts,
   allBrands,
 }: FilterSidebarProps) {
+  const categoryOptions = inventoryMode === 'digital' ? digitalCategories : physicalCategories
+
   const toggleCategory = (category: Category) => {
     const newCategories = filters.categories.includes(category)
       ? filters.categories.filter(c => c !== category)
@@ -91,7 +100,7 @@ export default function FilterSidebar({
               Category
             </h3>
             <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-              {categories.map((cat) => (
+              {categoryOptions.map((cat) => (
                 <button
                   key={cat.value}
                   onClick={() => toggleCategory(cat.value)}
