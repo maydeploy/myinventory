@@ -1,0 +1,232 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-mono;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    letter-spacing: 0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display uppercase tracking-wider text-ink;
+  }
+
+  /* Use PP Neue Bit only for H1 */
+  h1 {
+    font-family: var(--font-pp-neue-bit), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}
+
+/* Global UI scale: downsize everything by ~10% */
+body {
+  zoom: 0.9;
+}
+
+/* Fallback for browsers that don't support `zoom` (e.g. Firefox). */
+@supports not (zoom: 1) {
+  body {
+    transform: scale(0.9);
+    transform-origin: top left;
+    width: 111.111111%;
+  }
+}
+
+/* Custom minimal scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E8E8E0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #A0AEC0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Grid pattern - subtle dots */
+.dot-grid {
+  background-color: #F5F5F0;
+  background-image: radial-gradient(circle, #CBD5E0 1px, transparent 1px);
+  background-size: 24px 24px;
+  position: relative;
+}
+
+/* HUD border effect */
+.hud-border {
+  border: 2px solid #00FF41;
+  position: relative;
+  box-shadow:
+    0 0 10px rgba(0, 255, 65, 0.3),
+    inset 0 0 10px rgba(0, 255, 65, 0.1);
+}
+
+.hud-border::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: linear-gradient(45deg,
+    #00FF41 0%,
+    #00FFFF 50%,
+    #FF00FF 100%
+  );
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: blur(8px);
+}
+
+.hud-border:hover::before {
+  opacity: 0.6;
+  animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+/* Double-slash glyph */
+.sys-glyph::before {
+  content: '//';
+  color: #00FF41;
+  margin-right: 0.5rem;
+  opacity: 0.7;
+  font-weight: bold;
+}
+
+/* Glitch text effect */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.glitch-text::before {
+  color: #00FFFF;
+  z-index: -1;
+  animation: glitch-1 2s infinite;
+}
+
+.glitch-text::after {
+  color: #FF00FF;
+  z-index: -2;
+  animation: glitch-2 2s infinite;
+}
+
+@keyframes glitch-1 {
+  0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+  20% { clip-path: inset(50% 0 30% 0); transform: translate(-2px, 2px); }
+  40% { clip-path: inset(80% 0 10% 0); transform: translate(-2px, -2px); }
+  60% { clip-path: inset(10% 0 70% 0); transform: translate(2px, 2px); }
+  80% { clip-path: inset(40% 0 40% 0); transform: translate(2px, -2px); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+  20% { clip-path: inset(30% 0 50% 0); transform: translate(2px, -2px); }
+  40% { clip-path: inset(10% 0 80% 0); transform: translate(2px, 2px); }
+  60% { clip-path: inset(70% 0 10% 0); transform: translate(-2px, -2px); }
+  80% { clip-path: inset(40% 0 40% 0); transform: translate(-2px, 2px); }
+}
+
+/* Terminal flicker effect */
+.terminal-flicker {
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
+
+/* Panel with corner brackets */
+.bracket-panel {
+  position: relative;
+  padding: 1rem;
+}
+
+.bracket-panel::before,
+.bracket-panel::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #00FF41;
+}
+
+.bracket-panel::before {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+}
+
+.bracket-panel::after {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+}
+
+/* Tactical card styling */
+.tactical-card {
+  background: linear-gradient(135deg, #1A1A1A 0%, #0D0D0D 100%);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  box-shadow:
+    0 0 20px rgba(0, 255, 65, 0.1),
+    inset 0 0 20px rgba(0, 255, 65, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tactical-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #00FF41, #00FFFF, #FF00FF);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: blur(10px);
+}
+
+.tactical-card:hover {
+  border-color: #00FF41;
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 30px rgba(0, 255, 65, 0.3),
+    inset 0 0 30px rgba(0, 255, 65, 0.1);
+}
+
+.tactical-card:hover::before {
+  opacity: 0.3;
+}
+
+/* Dither effect for images */
+.dither-effect {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  filter: contrast(1.1) brightness(0.9);
+}
