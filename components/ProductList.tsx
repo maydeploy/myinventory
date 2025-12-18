@@ -81,7 +81,7 @@ function ProductListItem({
             src={product.coverImage}
             alt={product.name}
             fill
-            className="object-contain opacity-60"
+            className="object-contain"
             sizes="48px"
           />
         ) : (

@@ -58,7 +58,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
             src={product.coverImage}
             alt={product.name}
             fill
-            className="object-contain opacity-60"
+            className="object-contain"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (

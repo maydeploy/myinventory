@@ -114,7 +114,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                     src={product.coverImage}
                     alt={product.name}
                     fill
-                    className="object-contain opacity-60"
+                    className="object-contain"
                     sizes="400px"
                   />
                 ) : null}
