@@ -30,8 +30,23 @@ function toBrand(value: string | undefined): Brand {
 
 function toCategory(value: string | undefined): Category {
   const v = (value ?? '').trim().toLowerCase()
-  const allowed: Category[] = ['tech', 'home', 'workspace', 'pet', 'essentials', 'wishlist']
-  return (allowed.includes(v as Category) ? (v as Category) : 'essentials')
+  // Normalize a few common variants coming from Notion Select values
+  const normalized =
+    v === 'game' ? 'games'
+      : v === 'sw' ? 'software'
+        : v
+
+  const allowed: Category[] = [
+    'tech',
+    'home',
+    'workspace',
+    'pet',
+    'essentials',
+    'wishlist',
+    'games',
+    'software',
+  ]
+  return (allowed.includes(normalized as Category) ? (normalized as Category) : 'essentials')
 }
 
 function getPlainTextFromTitle(prop: any): string | undefined {
