@@ -11,7 +11,15 @@ export type Brand =
   | 'Blunt'
   | 'Nigh Collective'
 
-export type Category = 'tech' | 'home' | 'workspace' | 'pet' | 'essentials' | 'wishlist'
+export type Category =
+  | 'tech'
+  | 'home'
+  | 'workspace'
+  | 'pet'
+  | 'essentials'
+  | 'wishlist'
+  | 'games'
+  | 'software'
 
 export interface Product {
   id: string

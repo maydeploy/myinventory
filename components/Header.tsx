@@ -3,7 +3,11 @@
 import { useState } from 'react'
 import type { Brand, Category, DisplayMode, FilterState, SortOption } from '@/types'
 
+type InventoryMode = 'physical' | 'digital'
+
 interface HeaderProps {
+  inventoryMode: InventoryMode
+  onInventoryModeChange: (mode: InventoryMode) => void
   searchQuery: string
   onSearchChange: (query: string) => void
   sortOption: SortOption
@@ -17,7 +21,7 @@ interface HeaderProps {
   allBrands: Brand[]
 }
 
-const categories: { value: Category; label: string }[] = [
+const physicalCategories: { value: Category; label: string }[] = [
   { value: 'tech', label: 'tech' },
   { value: 'home', label: 'home' },
   { value: 'workspace', label: 'workspace' },
@@ -26,7 +30,14 @@ const categories: { value: Category; label: string }[] = [
   { value: 'wishlist', label: 'wishlist' },
 ]
 
+const digitalCategories: { value: Category; label: string }[] = [
+  { value: 'games', label: 'games' },
+  { value: 'software', label: 'software' },
+]
+
 export default function Header({
+  inventoryMode,
+  onInventoryModeChange,
   searchQuery,
   onSearchChange,
   sortOption,
@@ -41,6 +52,7 @@ export default function Header({
 }: HeaderProps) {
   const [isSortOpen, setIsSortOpen] = useState(false)
   const [isViewOpen, setIsViewOpen] = useState(false)
+  const categoryOptions = inventoryMode === 'digital' ? digitalCategories : physicalCategories
 
   const sortOptions: { value: SortOption; label: string }[] = [
     { value: 'date-desc', label: 'newest first' },
@@ -87,8 +99,8 @@ export default function Header({
     <>
       {/* Top Header */}
       <header className="sticky top-0 z-40 bg-paper border-b border-border">
-        <div className="px-4 py-3 md:px-8">
-          <div className="flex items-center justify-between">
+        <div className="px-4 py-3 md:px-8 text-center">
+          <div className="flex items-center justify-start">
             <h1
               className="font-display text-[36px] font-bold text-ink"
             >
@@ -96,6 +108,30 @@ export default function Header({
             </h1>
 
             <div className="flex items-center gap-2">
+              <div className="flex items-center border border-border">
+                <button
+                  onClick={() => onInventoryModeChange('physical')}
+                  className={`px-2 py-1 transition-all text-xs ${
+                    inventoryMode === 'physical'
+                      ? 'bg-paper-dark text-ink font-bold'
+                      : 'text-ink-light hover:text-ink'
+                  }`}
+                  aria-label="Show physical categories"
+                >
+                  [physical]
+                </button>
+                <button
+                  onClick={() => onInventoryModeChange('digital')}
+                  className={`px-2 py-1 transition-all text-xs border-l border-border ${
+                    inventoryMode === 'digital'
+                      ? 'bg-paper-dark text-ink font-bold'
+                      : 'text-ink-light hover:text-ink'
+                  }`}
+                  aria-label="Show digital categories"
+                >
+                  [digital]
+                </button>
+              </div>
               <button
                 onClick={onFilterToggle}
                 className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light"
@@ -212,7 +248,7 @@ export default function Header({
                 <div>
                   <div className="text-ink-lighter uppercase tracking-wider mb-2">category</div>
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                    {categories.map((cat) => (
+                    {categoryOptions.map((cat) => (
                       <button
                         key={cat.value}
                         onClick={() => toggleCategory(cat.value)}

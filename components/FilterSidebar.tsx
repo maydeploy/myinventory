@@ -19,6 +19,8 @@ const categories: { value: Category; label: string }[] = [
   { value: 'pet', label: 'pet' },
   { value: 'essentials', label: 'essentials' },
   { value: 'wishlist', label: 'wishlist' },
+  { value: 'games', label: 'games' },
+  { value: 'software', label: 'software' },
 ]
 
 export default function FilterSidebar({
@@ -52,7 +54,7 @@ export default function FilterSidebar({
   const topBrands = Object.entries(brandCounts)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
-    .map(([brand]) => brand)
+    .map(([brand]) => brand as Brand)
 
   return (
     <>

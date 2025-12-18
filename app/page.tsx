@@ -13,6 +13,8 @@ import type { Category, Product, DisplayMode, FilterState, SortOption } from '@/
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
+type InventoryMode = 'physical' | 'digital'
+
 export default function Home() {
   const { data, error, isLoading } = useSWR<{ products: Product[] }>('/api/products', fetcher, {
     revalidateOnFocus: false,
@@ -21,6 +23,7 @@ export default function Home() {
   })
 
   const [displayMode, setDisplayMode] = useState<DisplayMode>('grid')
+  const [inventoryMode, setInventoryMode] = useState<InventoryMode>('physical')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOption, setSortOption] = useState<SortOption>('name-asc')
   const [filters, setFilters] = useState<FilterState>({
@@ -31,8 +34,20 @@ export default function Home() {
   const [filterOpen, setFilterOpen] = useState(false)
   const [stackCategory, setStackCategory] = useState<Category | null>(null)
 
+  const handleInventoryModeChange = (mode: InventoryMode) => {
+    setInventoryMode(mode)
+    // Reset category/brand filters when switching modes so we don't end up with invalid selections.
+    setFilters((prev) => ({ ...prev, categories: [], brands: [] }))
+    setStackCategory(null)
+  }
+
+  const modeFilteredProducts = (data?.products || []).filter((product) => {
+    const isDigital = product.category === 'games' || product.category === 'software'
+    return inventoryMode === 'digital' ? isDigital : !isDigital
+  })
+
   // Filter and sort products
-  const filteredProducts = data?.products.filter((product) => {
+  const filteredProducts = modeFilteredProducts.filter((product) => {
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
@@ -100,6 +115,8 @@ export default function Home() {
       <DotGrid />
 
       <Header
+        inventoryMode={inventoryMode}
+        onInventoryModeChange={handleInventoryModeChange}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         sortOption={sortOption}
@@ -110,7 +127,7 @@ export default function Home() {
         filterOpen={filterOpen}
         filters={filters}
         onFiltersChange={setFilters}
-        allBrands={Array.from(new Set(data?.products.map(p => p.brand) || []))}
+        allBrands={Array.from(new Set(modeFilteredProducts.map(p => p.brand)))}
       />
 
       <div className="flex">

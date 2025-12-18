@@ -8,6 +8,8 @@ const categories: { value: Category; label: string }[] = [
   { value: 'pet', label: 'pet' },
   { value: 'essentials', label: 'essentials' },
   { value: 'wishlist', label: 'wishlist' },
+  { value: 'games', label: 'games' },
+  { value: 'software', label: 'software' },
 ]
 
 export default function ProductStackView({
