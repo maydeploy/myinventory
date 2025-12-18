@@ -33,6 +33,7 @@ function ProductListItem({
   index: number
 }) {
   const isWishlist = product.category === 'wishlist'
+  const isDigital = product.category === 'games' || product.category === 'software'
   const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -98,22 +99,26 @@ function ProductListItem({
         </p>
       </div>
 
-      {/* Brand */}
-      <div className="w-24 hidden md:block">
-        <span className="text-xs text-ink-lighter font-mono">
-          {product.brand}
-        </span>
-      </div>
+      {/* Brand (physical only) */}
+      {!isDigital && (
+        <div className="w-24 hidden md:block">
+          <span className="text-xs text-ink-lighter font-mono">
+            {product.brand}
+          </span>
+        </div>
+      )}
 
       {/* Category */}
       <div className="w-20 hidden lg:block">
         <span className="text-xs text-ink-lighter font-mono">{product.category}</span>
       </div>
 
-      {/* Price */}
-      <div className="w-20 text-right">
-        <span className="font-mono text-sm text-ink">${product.price.toFixed(2)}</span>
-      </div>
+      {/* Price (physical only) */}
+      {!isDigital && (
+        <div className="w-20 text-right">
+          <span className="font-mono text-sm text-ink">${product.price.toFixed(2)}</span>
+        </div>
+      )}
 
       {isWishlist && (
         <span className="text-ink-lighter text-xs">*</span>

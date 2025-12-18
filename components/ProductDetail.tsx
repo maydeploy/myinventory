@@ -60,6 +60,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   }, [onClose])
 
   const isWishlist = product.category === 'wishlist'
+  const isDigital = product.category === 'games' || product.category === 'software'
   const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -128,15 +129,19 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
             {/* Metadata */}
             <div className="space-y-2 text-sm font-mono text-ink-light">
-              <div>
-                <span className="text-ink-lighter">brand:</span> {product.brand}
-              </div>
+              {!isDigital && (
+                <div>
+                  <span className="text-ink-lighter">brand:</span> {product.brand}
+                </div>
+              )}
               <div>
                 <span className="text-ink-lighter">category:</span> {product.category}
               </div>
-              <div>
-                <span className="text-ink-lighter">price:</span> <span className="text-ink font-bold">${product.price.toFixed(2)}</span>
-              </div>
+              {!isDigital && (
+                <div>
+                  <span className="text-ink-lighter">price:</span> <span className="text-ink font-bold">${product.price.toFixed(2)}</span>
+                </div>
+              )}
               <div>
                 <span className="text-ink-lighter">added:</span> {formattedDate}
               </div>

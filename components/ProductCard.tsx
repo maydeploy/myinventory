@@ -10,6 +10,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onClick }: ProductCardProps) {
   const isWishlist = product.category === 'wishlist'
+  const isDigital = product.category === 'games' || product.category === 'software'
   const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -85,15 +86,21 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         {/* Footer: fixed bottom position across cards */}
         <div>
           <div className="flex flex-wrap items-center gap-1 mb-2 text-xs text-ink-lighter font-mono">
-            <span>{product.brand}</span>
-            <span>·</span>
+            {!isDigital && (
+              <>
+                <span>{product.brand}</span>
+                <span>·</span>
+              </>
+            )}
             <span>{product.category}</span>
           </div>
 
           <div className="flex items-center justify-between border-t border-border pt-2">
-            <p className="text-sm font-bold text-ink font-mono">
-              ${product.price.toFixed(2)}
-            </p>
+            {!isDigital && (
+              <p className="text-sm font-bold text-ink font-mono">
+                ${product.price.toFixed(2)}
+              </p>
+            )}
           </div>
         </div>
       </div>
