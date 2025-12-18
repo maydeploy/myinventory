@@ -1,47 +1,14 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
-import type { ImageFxSettings, Product } from '@/types'
-import { ditherImageToDataUrl } from '@/lib/dither'
+import type { Product } from '@/types'
 
 interface ProductCardProps {
   product: Product
-  imageFx: ImageFxSettings
   onClick: () => void
 }
 
-export default function ProductCard({ product, imageFx, onClick }: ProductCardProps) {
-  const [ditheredImage, setDitheredImage] = useState<string>('')
-  const [hovered, setHovered] = useState(false)
-  const lastKeyRef = useRef<string>('')
-
-  const ditherKey = useMemo(() => {
-    return JSON.stringify({
-      src: product.coverImage || '',
-      contrast: imageFx.contrast,
-      bias: imageFx.bias,
-      saturation: imageFx.saturation,
-    })
-  }, [product.coverImage, imageFx.contrast, imageFx.bias, imageFx.saturation])
-
-  const ensureDithered = async () => {
-    if (!product.coverImage) return
-    if (ditheredImage && lastKeyRef.current === ditherKey) return
-
-    lastKeyRef.current = ditherKey
-    try {
-      const url = await ditherImageToDataUrl(product.coverImage, {
-        contrast: imageFx.contrast,
-        bias: imageFx.bias,
-        saturation: imageFx.saturation,
-      })
-      setDitheredImage(url)
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
+export default function ProductCard({ product, onClick }: ProductCardProps) {
   const isWishlist = product.category === 'wishlist'
   const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -58,11 +25,6 @@ export default function ProductCard({ product, imageFx, onClick }: ProductCardPr
   return (
     <div
       onClick={handleClick}
-      onMouseEnter={() => {
-        setHovered(true)
-        if (imageFx.ditherOnHover) void ensureDithered()
-      }}
-      onMouseLeave={() => setHovered(false)}
       className={`
         group relative bg-white border border-border hover:border-accent transition-all cursor-pointer overflow-visible
         flex flex-col h-full
@@ -90,29 +52,19 @@ export default function ProductCard({ product, imageFx, onClick }: ProductCardPr
       )}
 
       {/* Image */}
-      <div className="relative w-full h-64 overflow-hidden flex items-center justify-center">
+      <div className="relative w-full h-64 overflow-hidden flex items-center justify-center bg-paper">
         {product.coverImage ? (
           <Image
             src={product.coverImage}
             alt={product.name}
             fill
-            className="object-cover opacity-60"
+            className="object-contain opacity-60"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-4xl text-ink-lighter">
             [ ]
           </div>
-        )}
-
-        {/* Dither overlay: normal image by default, dither appears on hover */}
-        {imageFx.ditherOnHover && ditheredImage && (
-          <img
-            src={ditheredImage}
-            alt={product.name}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity"
-            style={{ opacity: hovered ? imageFx.ditherOpacity : 0 }}
-          />
         )}
       </div>
 

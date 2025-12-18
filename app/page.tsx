@@ -9,7 +9,7 @@ import ProductDetail from '@/components/ProductDetail'
 import DotGrid from '@/components/DotGrid'
 import ProductStackView from '@/components/ProductStackView'
 import ProductShuffleView from '@/components/ProductShuffleView'
-import type { Category, Product, DisplayMode, FilterState, ImageFxSettings, SortOption } from '@/types'
+import type { Category, Product, DisplayMode, FilterState, SortOption } from '@/types'
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
@@ -30,13 +30,6 @@ export default function Home() {
   })
   const [filterOpen, setFilterOpen] = useState(false)
   const [stackCategory, setStackCategory] = useState<Category | null>(null)
-  const [imageFx, setImageFx] = useState<ImageFxSettings>({
-    ditherOnHover: true,
-    ditherOpacity: 1,
-    contrast: 1.2,
-    bias: 0,
-    saturation: 1,
-  })
 
   // Filter and sort products
   const filteredProducts = data?.products.filter((product) => {
@@ -118,8 +111,6 @@ export default function Home() {
         filters={filters}
         onFiltersChange={setFilters}
         allBrands={Array.from(new Set(data?.products.map(p => p.brand) || []))}
-        imageFx={imageFx}
-        onImageFxChange={setImageFx}
       />
 
       <div className="flex">
@@ -150,13 +141,11 @@ export default function Home() {
           ) : displayMode === 'grid' ? (
             <ProductGrid
               products={sortedProducts}
-              imageFx={imageFx}
               onProductClick={() => {}}
             />
           ) : displayMode === 'list' ? (
             <ProductList
               products={sortedProducts}
-              imageFx={imageFx}
               onProductClick={() => {}}
             />
           ) : displayMode === 'stack' ? (
@@ -175,19 +164,17 @@ export default function Home() {
                 </div>
                 <ProductGrid
                   products={sortedProducts.filter(p => p.category === stackCategory)}
-                  imageFx={imageFx}
                   onProductClick={() => {}}
                 />
               </div>
             ) : (
               <ProductStackView
                 products={sortedProducts}
-                imageFx={imageFx}
                 onSelectCategory={(c) => setStackCategory(c)}
               />
             )
           ) : (
-            <ProductShuffleView products={sortedProducts} imageFx={imageFx} />
+            <ProductShuffleView products={sortedProducts} />
           )}
         </main>
       </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Brand, Category, DisplayMode, FilterState, ImageFxSettings, SortOption } from '@/types'
+import type { Brand, Category, DisplayMode, FilterState, SortOption } from '@/types'
 
 interface HeaderProps {
   searchQuery: string
@@ -15,8 +15,6 @@ interface HeaderProps {
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
   allBrands: Brand[]
-  imageFx: ImageFxSettings
-  onImageFxChange: (settings: ImageFxSettings) => void
 }
 
 const categories: { value: Category; label: string }[] = [
@@ -40,8 +38,6 @@ export default function Header({
   filters,
   onFiltersChange,
   allBrands,
-  imageFx,
-  onImageFxChange,
 }: HeaderProps) {
   const [isSortOpen, setIsSortOpen] = useState(false)
   const [isViewOpen, setIsViewOpen] = useState(false)
@@ -257,86 +253,6 @@ export default function Header({
                   )}
                 </div>
 
-                {/* Image FX */}
-                <div className="col-span-2 mt-1 pt-2 border-t border-border">
-                  <div className="text-ink-lighter uppercase tracking-wider mb-2">image fx</div>
-
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <button
-                      onClick={() => onImageFxChange({ ...imageFx, ditherOnHover: !imageFx.ditherOnHover })}
-                      className={`px-2 py-1 border border-border transition-all text-xs ${
-                        imageFx.ditherOnHover ? 'bg-paper-dark text-ink' : 'text-ink-light hover:text-ink'
-                      }`}
-                      aria-label="Toggle dither on hover"
-                    >
-                      {imageFx.ditherOnHover ? '[dither: hover]' : '[dither: off]'}
-                    </button>
-
-                    <label className="flex items-center gap-2 text-ink-light">
-                      <span className="text-ink-lighter">opacity</span>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        value={Math.round(imageFx.ditherOpacity * 100)}
-                        onChange={(e) =>
-                          onImageFxChange({ ...imageFx, ditherOpacity: Number(e.target.value) / 100 })
-                        }
-                        className="w-32"
-                      />
-                      <span className="text-ink-lighter tabular-nums w-8 text-right">
-                        {Math.round(imageFx.ditherOpacity * 100)}
-                      </span>
-                    </label>
-
-                    <label className="flex items-center gap-2 text-ink-light">
-                      <span className="text-ink-lighter">contrast</span>
-                      <input
-                        type="range"
-                        min={50}
-                        max={300}
-                        value={Math.round(imageFx.contrast * 100)}
-                        onChange={(e) =>
-                          onImageFxChange({ ...imageFx, contrast: Number(e.target.value) / 100 })
-                        }
-                        className="w-32"
-                      />
-                      <span className="text-ink-lighter tabular-nums w-10 text-right">
-                        {imageFx.contrast.toFixed(2)}
-                      </span>
-                    </label>
-
-                    <label className="flex items-center gap-2 text-ink-light">
-                      <span className="text-ink-lighter">bias</span>
-                      <input
-                        type="range"
-                        min={-80}
-                        max={80}
-                        value={imageFx.bias}
-                        onChange={(e) => onImageFxChange({ ...imageFx, bias: Number(e.target.value) })}
-                        className="w-32"
-                      />
-                      <span className="text-ink-lighter tabular-nums w-10 text-right">{imageFx.bias}</span>
-                    </label>
-
-                    <label className="flex items-center gap-2 text-ink-light">
-                      <span className="text-ink-lighter">saturation</span>
-                      <input
-                        type="range"
-                        min={0}
-                        max={200}
-                        value={Math.round(imageFx.saturation * 100)}
-                        onChange={(e) =>
-                          onImageFxChange({ ...imageFx, saturation: Number(e.target.value) / 100 })
-                        }
-                        className="w-32"
-                      />
-                      <span className="text-ink-lighter tabular-nums w-10 text-right">
-                        {imageFx.saturation.toFixed(2)}
-                      </span>
-                    </label>
-                  </div>
-                </div>
               </div>
             </div>
           )}

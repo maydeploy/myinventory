@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ImageFxSettings, Product } from '@/types'
+import type { Product } from '@/types'
 import ProductCard from './ProductCard'
 
 type Pos = { x: number; y: number; r: number }
@@ -17,10 +17,8 @@ function mulberry32(seed: number) {
 
 export default function ProductShuffleView({
   products,
-  imageFx,
 }: {
   products: Product[]
-  imageFx: ImageFxSettings
 }) {
   const ref = useRef<HTMLDivElement | null>(null)
   const [seed, setSeed] = useState(1)
@@ -103,7 +101,7 @@ export default function ProductShuffleView({
                 width: 320,
               }}
             >
-              <ProductCard product={p} imageFx={imageFx} onClick={() => {}} />
+              <ProductCard product={p} onClick={() => {}} />
             </div>
           )
         })}

@@ -1,24 +1,20 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
-import type { ImageFxSettings, Product } from '@/types'
-import { ditherImageToDataUrl } from '@/lib/dither'
+import type { Product } from '@/types'
 
 interface ProductListProps {
   products: Product[]
-  imageFx: ImageFxSettings
   onProductClick: (product: Product) => void
 }
 
-export default function ProductList({ products, imageFx, onProductClick }: ProductListProps) {
+export default function ProductList({ products, onProductClick }: ProductListProps) {
   return (
     <div className="space-y-2">
       {products.map((product, index) => (
         <ProductListItem
           key={product.id}
           product={product}
-          imageFx={imageFx}
           onClick={() => onProductClick(product)}
           index={index}
         />
@@ -29,48 +25,13 @@ export default function ProductList({ products, imageFx, onProductClick }: Produ
 
 function ProductListItem({
   product,
-  imageFx,
   onClick,
   index,
 }: {
   product: Product
-  imageFx: ImageFxSettings
   onClick: () => void
   index: number
 }) {
-  const [ditheredImage, setDitheredImage] = useState<string>('')
-  const [hovered, setHovered] = useState(false)
-  const lastKeyRef = useRef<string>('')
-
-  const ditherKey = useMemo(() => {
-    return JSON.stringify({
-      src: product.coverImage || '',
-      contrast: imageFx.contrast,
-      bias: imageFx.bias,
-      saturation: imageFx.saturation,
-      // Small canvas used for the list thumbnail
-      size: 80,
-    })
-  }, [product.coverImage, imageFx.contrast, imageFx.bias, imageFx.saturation])
-
-  const ensureDithered = async () => {
-    if (!product.coverImage) return
-    if (ditheredImage && lastKeyRef.current === ditherKey) return
-
-    lastKeyRef.current = ditherKey
-    try {
-      // Generate full dither, then let CSS fit it into 48px thumbnail.
-      const url = await ditherImageToDataUrl(product.coverImage, {
-        contrast: imageFx.contrast,
-        bias: imageFx.bias,
-        saturation: imageFx.saturation,
-      })
-      setDitheredImage(url)
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
   const isWishlist = product.category === 'wishlist'
   const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -87,11 +48,6 @@ function ProductListItem({
   return (
     <div
       onClick={handleClick}
-      onMouseEnter={() => {
-        setHovered(true)
-        if (imageFx.ditherOnHover) void ensureDithered()
-      }}
-      onMouseLeave={() => setHovered(false)}
       className={`
         w-full flex items-center gap-3 p-3 relative group
         border-b border-border hover:bg-paper-dark transition-all
@@ -132,15 +88,6 @@ function ProductListItem({
           <div className="w-full h-full flex items-center justify-center text-lg text-ink-lighter">
             [ ]
           </div>
-        )}
-
-        {imageFx.ditherOnHover && ditheredImage && (
-          <img
-            src={ditheredImage}
-            alt={product.name}
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none transition-opacity"
-            style={{ opacity: hovered ? imageFx.ditherOpacity : 0 }}
-          />
         )}
       </div>
 

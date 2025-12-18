@@ -41,11 +41,3 @@ export interface FilterState {
   brands: Brand[]
   priceRange: [number, number]
 }
-
-export interface ImageFxSettings {
-  ditherOnHover: boolean
-  ditherOpacity: number // 0..1
-  contrast: number // e.g. 0.5..3
-  bias: number // e.g. -80..80
-  saturation: number // e.g. 0..2
-}

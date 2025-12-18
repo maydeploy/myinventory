@@ -1,4 +1,4 @@
-import type { Category, ImageFxSettings, Product } from '@/types'
+import type { Category, Product } from '@/types'
 import Image from 'next/image'
 
 const categories: { value: Category; label: string }[] = [
@@ -15,7 +15,6 @@ export default function ProductStackView({
   onSelectCategory,
 }: {
   products: Product[]
-  imageFx: ImageFxSettings
   onSelectCategory: (category: Category) => void
 }) {
   const byCategory = categories
