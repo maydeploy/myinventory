@@ -3,7 +3,7 @@ import './globals.css'
 import { otBulbMonoline, ppMondwest, ppNeueBit } from '@/lib/fonts'
 
 export const metadata: Metadata = {
-  title: 'My Inventory | May\'s Curated Collection',
+  title: 'Grid of Good Things - May Zhou',
   description: 'A retro-futuristic showcase of curated tech, home, workspace, essentials, and pet products',
 }
 

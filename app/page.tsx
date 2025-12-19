@@ -4,12 +4,8 @@ import { useState } from 'react'
 import useSWR from 'swr'
 import Header from '@/components/Header'
 import ProductGrid from '@/components/ProductGrid'
-import ProductList from '@/components/ProductList'
-import ProductDetail from '@/components/ProductDetail'
 import DotGrid from '@/components/DotGrid'
-import ProductStackView from '@/components/ProductStackView'
-import ProductShuffleView from '@/components/ProductShuffleView'
-import type { Category, Product, DisplayMode, FilterState, SortOption } from '@/types'
+import type { Product, FilterState, SortOption } from '@/types'
 import { isDigitalCategory } from '@/lib/categories'
 
 const fetcher = async (url: string) => {
@@ -42,20 +38,18 @@ export default function Home() {
     refreshInterval: 300000, // 5 minutes
   })
 
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('grid')
   const [inventoryMode, setInventoryMode] = useState<InventoryMode>('physical')
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortOption, setSortOption] = useState<SortOption>('name-asc')
+  const [sortOption, setSortOption] = useState<SortOption>('price-asc')
   const [filters, setFilters] = useState<FilterState>({
     category: 'all',
   })
-  const [stackCategory, setStackCategory] = useState<Category | null>(null)
 
   const handleInventoryModeChange = (mode: InventoryMode) => {
     setInventoryMode(mode)
     // Reset category filters when switching modes so we don't end up with invalid selections.
-    setFilters((prev) => ({ ...prev, category: 'all' }))
-    setStackCategory(null)
+    // For digital mode, default to watchlist
+    setFilters((prev) => ({ ...prev, category: mode === 'digital' ? 'watchlist' : 'all' }))
   }
 
 
@@ -126,13 +120,11 @@ export default function Home() {
         onSearchChange={setSearchQuery}
         sortOption={sortOption}
         onSortChange={setSortOption}
-        displayMode={displayMode}
-        onDisplayModeChange={setDisplayMode}
         filters={filters}
         onFiltersChange={setFilters}
       />
 
-      <main className="flex-1 p-4 md:p-8 pb-44 md:pb-[13.5rem]">
+      <main className="flex-1 p-4 md:p-8 pb-44 md:pb-[13.5rem] pl-28 md:pl-32">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
@@ -161,43 +153,11 @@ export default function Home() {
               </p>
             </div>
           </div>
-        ) : displayMode === 'grid' ? (
+        ) : (
           <ProductGrid
             products={sortedProducts}
             onProductClick={() => {}}
           />
-        ) : displayMode === 'list' ? (
-          <ProductList
-            products={sortedProducts}
-            onProductClick={() => {}}
-          />
-        ) : displayMode === 'stack' ? (
-          stackCategory ? (
-            <div className="max-w-7xl mx-auto">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-xs font-mono text-ink-lighter">
-                  category: <span className="text-ink">{stackCategory}</span>
-                </div>
-                <button
-                  onClick={() => setStackCategory(null)}
-                  className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-xs text-ink-light"
-                >
-                  [back to stacks]
-                </button>
-              </div>
-              <ProductGrid
-                products={sortedProducts.filter(p => p.category === stackCategory)}
-                onProductClick={() => {}}
-              />
-            </div>
-          ) : (
-            <ProductStackView
-              products={sortedProducts}
-              onSelectCategory={(c) => setStackCategory(c)}
-            />
-          )
-        ) : (
-          <ProductShuffleView products={sortedProducts} />
         )}
       </main>
     </div>

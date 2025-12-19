@@ -82,6 +82,87 @@ body {
   font-family: inherit !important;
 }
 
+/* Receipt note styling - thermal printer receipt look */
+.receipt-note {
+  font-family: "Courier New", "Courier", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+  font-weight: 400;
+  letter-spacing: 0;
+  background: #ffffff;
+  color: #000000;
+  width: 100%;
+  position: relative;
+}
+
+/* Paper texture effect */
+.receipt-note::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.01) 1px,
+      rgba(0, 0, 0, 0.01) 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.01) 1px,
+      rgba(0, 0, 0, 0.01) 2px
+    );
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.receipt-note > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Refined dotted divider lines - round circle dots */
+.receipt-note .border-dashed {
+  border: none !important;
+  height: 1px !important;
+  background-image: radial-gradient(circle, #999 0.5px, transparent 0.5px) !important;
+  background-size: 4px 1px !important;
+  background-repeat: repeat-x !important;
+  background-position: 0 center !important;
+}
+
+.dark .receipt-note {
+  background: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+.dark .receipt-note::before {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(255, 255, 255, 0.02) 1px,
+      rgba(255, 255, 255, 0.02) 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(255, 255, 255, 0.02) 1px,
+      rgba(255, 255, 255, 0.02) 2px
+    );
+}
+
+.dark .receipt-note .border-dashed {
+  background-image: radial-gradient(circle, #555 0.5px, transparent 0.5px) !important;
+}
+
 /* Dark mode (class-based): flip existing Tailwind utility classes via CSS overrides */
 .dark body {
   background: #0D0D0D;
@@ -115,7 +196,6 @@ body {
   background-color: #726969 !important;
   color: #F5F5F0 !important;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.44) !important;
-  border: 1px solid rgba(42, 42, 42, 1) !important;
 }
 
 .dark .sticky-note .text-ink {
@@ -314,4 +394,43 @@ body {
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
   filter: contrast(1.1) brightness(0.9);
+}
+
+/* Header mobile animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotateToSidebar {
+  from {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-90deg);
+  }
+}
+
+.header-mobile {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Smooth font size transitions */
+.font-display {
+  transition: font-size 0.3s ease-in-out, line-height 0.3s ease-in-out;
+}
+
+/* Rotated sidebar header on very small screens */
+@media (max-width: 640px) {
+  .header-mobile {
+    animation: rotateToSidebar 0.4s ease-out;
+  }
 }

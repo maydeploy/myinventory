@@ -3,7 +3,16 @@
     "allow": [
       "Bash(npm install)",
       "Bash(npm run dev:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(vercel --version:*)",
+      "Bash(vercel --yes:*)",
+      "Bash(vercel env:*)",
+      "Bash(printf:*)",
+      "Bash(vercel:*)",
+      "Bash(npm install:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(curl:*)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

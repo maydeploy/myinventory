@@ -4,6 +4,7 @@ import Image from 'next/image'
 import type { Product } from '@/types'
 import { useIsDarkMode } from '@/lib/useIsDarkMode'
 import { isDigitalCategory } from '@/lib/categories'
+import ReceiptNote from './ReceiptNote'
 
 interface ProductListProps {
   products: Product[]
@@ -60,22 +61,14 @@ function ProductListItem({
         ${product.url ? 'cursor-pointer' : 'cursor-default'}
       `}
     >
-      {/* Sticky Note on Hover */}
+      {/* Receipt Note on Hover */}
       {product.note && (
-        <div className="sticky-note absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 bg-[#FFF9C4] shadow-lg p-4 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-10 origin-center transform scale-90 group-hover:scale-100 rotate-2 translate-x-[10%] translate-y-[120%]"
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 bg-white shadow-lg p-3 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-10 origin-center transform scale-90 group-hover:scale-100 translate-x-[10%] translate-y-[120%]"
           style={{
-            boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           }}
         >
-          <div className="flex flex-col justify-between min-h-28 text-lg font-mono text-ink">
-            <div className="text-base leading-snug line-clamp-8">
-              {product.note}
-            </div>
-
-            <div className="pt-2 text-ink-lighter text-sm text-left">
-              {formattedDate}
-            </div>
-          </div>
+          <ReceiptNote note={product.note} date={formattedDate} />
         </div>
       )}
 

@@ -6,6 +6,7 @@ import Image from 'next/image'
 import type { Product } from '@/types'
 import { useIsDarkMode } from '@/lib/useIsDarkMode'
 import { isDigitalCategory } from '@/lib/categories'
+import ReceiptNote from './ReceiptNote'
 
 interface ProductDetailProps {
   product: Product
@@ -85,13 +86,13 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
           className="absolute inset-0 bg-ink bg-opacity-20"
         />
 
-        {/* Sticky Note */}
+        {/* Receipt */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ duration: 0.15, ease: "easeOut" }}
-          className="sticky-note relative w-full max-w-md bg-[#FFF9C4] shadow-lg"
+          className="receipt-note relative w-full max-w-md bg-white shadow-lg"
           style={{
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           }}
@@ -159,10 +160,8 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
             {/* Notes */}
             {product.note && (
-              <div className="pt-3 border-t border-ink border-opacity-20">
-                <p className="text-sm font-mono text-ink leading-relaxed whitespace-pre-wrap">
-                  {product.note}
-                </p>
+              <div className="pt-3">
+                <ReceiptNote note={product.note} date={formattedDate} />
               </div>
             )}
 
