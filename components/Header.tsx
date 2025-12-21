@@ -129,8 +129,14 @@ export default function Header({
         </div>
       </div>
 
-      {/* Left vertical title panel */}
-      <div className="fixed left-0 top-0 bottom-0 z-40 w-24 bg-paper border-r border-border flex items-center justify-center">
+      {/* Left vertical title panel - always visible, ends 24px above search bar */}
+      <div
+        className="fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-40 w-24 border-r border-border flex items-end justify-center pb-6"
+        style={{
+          boxSizing: 'content-box',
+          background: 'unset',
+        }}
+      >
         <div
           className="font-display text-ink leading-tight whitespace-nowrap select-none"
           style={{
@@ -138,7 +144,7 @@ export default function Header({
             transformOrigin: 'center center'
           }}
         >
-          <span className="text-[20px] sm:text-[24px] md:text-[32px] font-bold">GRID OF GOOD </span>
+          <span className="text-[20px] sm:text-[24px] md:text-[32px] font-bold">GOOD </span>
           <span
             role="button"
             tabIndex={0}
@@ -172,8 +178,8 @@ export default function Header({
         </div>
       </div>
 
-      {/* Bottom Command Line (search bar) */}
-      <div className="fixed bottom-0 left-24 right-0 z-40 bg-paper border-t border-border">
+      {/* Bottom Command Line (search bar) - full width */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-paper border-t border-border">
         <div className="px-4 py-2 md:px-8">
           <div className="flex flex-col gap-2">
             {/* Filters (below divider, above search) */}

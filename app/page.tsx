@@ -126,10 +126,20 @@ export default function Home() {
 
       <main className="flex-1 p-4 md:p-8 pb-44 md:pb-[13.5rem] pl-28 md:pl-32">
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <p className="text-ink-lighter font-mono text-sm">loading...</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr gap-6 max-w-7xl mx-auto">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse bg-white border border-border h-[420px] flex flex-col"
+              >
+                <div className="relative w-full h-64 bg-gray-200"></div>
+                <div className="p-3 flex flex-col flex-1 justify-end space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-20">

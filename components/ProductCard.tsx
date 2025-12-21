@@ -124,7 +124,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
             src={imageSrc}
             alt={product.name}
             fill
-            className="object-contain transition-transform duration-150 ease-out will-change-transform group-hover:scale-[1.2] group-hover:-rotate-[16deg] group-hover:translate-x-[-20%] group-hover:translate-y-[-10%]"
+            className="object-contain transition-transform duration-150 ease-out will-change-transform group-hover:scale-[1.2] group-hover:-rotate-[10deg] group-hover:translate-x-[-10%] group-hover:translate-y-[-10%]"
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (

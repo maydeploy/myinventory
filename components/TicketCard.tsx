@@ -9,20 +9,56 @@ interface TicketCardProps {
 }
 
 export default function TicketCard({ product, onClick }: TicketCardProps) {
-  const formattedDate = new Date(product.date || product.createdTime).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-
   const imageSrc = product.coverImage || product.darkModeCoverImage
 
-  // Extract time/theatre info from note if available, or use defaults
-  const noteParts = product.note?.split(/[,\n]/) || []
-  const timeMatch = product.note?.match(/(\d{1,2}(:\d{2})?\s*(AM|PM|am|pm))/i)
-  const time = timeMatch ? timeMatch[1] : '8PM'
-  const theatre = product.category || '1'
-  const seats = product.id.slice(-3).toUpperCase() || 'A24'
+  // Parse note for movie/TV series metadata
+  const note = product.note || ''
+  
+  // Extract genre (look for "genre:", "Genre:", or similar patterns)
+  const genreMatch = note.match(/(?:genre|Genre|GENRE)[:\s]+([^\n,]+)/i)
+  const genre = genreMatch ? genreMatch[1].trim() : 'Drama'
+  
+  // Extract director (look for "director:", "Director:", or similar patterns)
+  const directorMatch = note.match(/(?:director|Director|DIRECTOR)[:\s]+([^\n,]+)/i)
+  const director = directorMatch ? directorMatch[1].trim() : 'Unknown'
+  
+  // Determine if it's a movie or TV series (look for "tv", "series", "season", "episodes" in note or name)
+  const isTVSeries = /(?:tv|series|season|episodes|ep\.|s\d+e\d+)/i.test(note + ' ' + product.name)
+  const mediaType = isTVSeries ? 'TV SERIES' : 'MOVIE'
+  
+  // Extract length/runtime
+  // For movies: look for "Xh Ym", "X hours Y minutes", "X:YY", etc.
+  // For TV series: look for "X episodes", "X seasons", etc.
+  let length = 'N/A'
+  if (isTVSeries) {
+    const episodesMatch = note.match(/(\d+)\s*(?:episodes|eps|ep\.)/i)
+    const seasonsMatch = note.match(/(\d+)\s*(?:seasons|s\.)/i)
+    if (episodesMatch) {
+      length = `${episodesMatch[1]} episodes`
+    } else if (seasonsMatch) {
+      length = `${seasonsMatch[1]} seasons`
+    } else {
+      length = 'Ongoing'
+    }
+  } else {
+    // Movie runtime
+    const runtimeMatch = note.match(/(?:runtime|length|duration)[:\s]+(\d+)\s*(?:h|hours?|:)?\s*(\d+)?\s*(?:m|mins?|minutes?)?/i) ||
+                        note.match(/(\d+)\s*(?:h|hours?|:)\s*(\d+)?\s*(?:m|mins?|minutes?)/i) ||
+                        note.match(/(\d+):(\d+)/)
+    if (runtimeMatch) {
+      const hours = parseInt(runtimeMatch[1]) || 0
+      const mins = parseInt(runtimeMatch[2]) || 0
+      if (hours > 0 && mins > 0) {
+        length = `${hours}h ${mins}m`
+      } else if (hours > 0) {
+        length = `${hours}h`
+      } else if (mins > 0) {
+        length = `${mins}m`
+      }
+    } else {
+      length = 'N/A'
+    }
+  }
 
   return (
     <div
@@ -69,59 +105,31 @@ export default function TicketCard({ product, onClick }: TicketCardProps) {
       </div>
 
       {/* Ticket Details Section */}
-      <div className="flex-1 p-4 space-y-3">
+      <div className="flex-1 p-4 pb-6">
         {/* Left and Right Columns for Details */}
         <div className="grid grid-cols-2 gap-4 text-xs text-white font-mono">
           {/* Left Column */}
           <div className="space-y-2">
             <div>
-              <span className="text-[#888] uppercase tracking-wider text-[10px]">DATE</span>
-              <p className="text-white mt-0.5 text-xs">{formattedDate}</p>
+              <span className="text-[#888] uppercase tracking-wider text-[10px]">GENRE</span>
+              <p className="text-white mt-0.5 text-xs">{genre}</p>
             </div>
             <div>
-              <span className="text-[#888] uppercase tracking-wider text-[10px]">LOCATION</span>
-              <p className="text-white mt-0.5 text-xs">{product.brand || 'Digital Theatre'}</p>
+              <span className="text-[#888] uppercase tracking-wider text-[10px]">TYPE</span>
+              <p className="text-white mt-0.5 text-xs">{mediaType}</p>
             </div>
           </div>
 
           {/* Right Column */}
           <div className="space-y-2 text-right">
             <div>
-              <span className="text-[#888] uppercase tracking-wider text-[10px]">TIME</span>
-              <p className="text-white mt-0.5 text-xs">{time}</p>
+              <span className="text-[#888] uppercase tracking-wider text-[10px]">DIRECTOR</span>
+              <p className="text-white mt-0.5 text-xs">{director}</p>
             </div>
             <div>
-              <span className="text-[#888] uppercase tracking-wider text-[10px]">THEATRE</span>
-              <p className="text-white mt-0.5 text-xs">{theatre}</p>
+              <span className="text-[#888] uppercase tracking-wider text-[10px]">LENGTH</span>
+              <p className="text-white mt-0.5 text-xs">{length}</p>
             </div>
-            <div>
-              <span className="text-[#888] uppercase tracking-wider text-[10px]">SEATS</span>
-              <p className="text-white mt-0.5 text-xs">{seats}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* QR Code and Instruction */}
-        <div className="flex items-start gap-3 pt-3 border-t border-[#333]">
-          {/* QR Code Placeholder - Orange border, white interior */}
-          <div className="flex-shrink-0 w-16 h-16 bg-[#ff6b35] p-1">
-            <div className="w-full h-full bg-white grid grid-cols-8 gap-0.5 p-0.5">
-              {Array.from({ length: 64 }).map((_, i) => {
-                // Simple QR-like pattern
-                const shouldFill = (i % 9 < 3) || (i % 7 === 0) || (i > 50) || (i < 8) || (i % 8 === 0)
-                return (
-                  <div
-                    key={i}
-                    className={`aspect-square ${shouldFill ? 'bg-black' : 'bg-white'}`}
-                  />
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Instruction Text */}
-          <div className="flex-1 text-[10px] text-[#888] leading-relaxed pt-1">
-            Please make sure to present your digital ticket to the appropriate gate/access at the theatre.
           </div>
         </div>
       </div>
