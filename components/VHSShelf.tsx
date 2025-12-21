@@ -1,6 +1,6 @@
 'use client'
 
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, type ThreeEvent } from '@react-three/fiber'
 import { OrbitControls, Html, Text } from '@react-three/drei'
 import { useRef, useState, Suspense } from 'react'
 import * as THREE from 'three'
@@ -42,7 +42,7 @@ function VHSTape({ product, position, index }: VHSTapeProps) {
     }
   })
 
-  const handleClick = (e: THREE.Event) => {
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation()
     setIsPulledOut(!isPulledOut)
   }
