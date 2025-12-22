@@ -20,11 +20,45 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
   const isDigital = isDigitalCategory(product.category)
 
   const cardRef = useRef<HTMLDivElement>(null)
+  const [rotateX, setRotateX] = useState(0)
+  const [rotateY, setRotateY] = useState(0)
+  const [isHovered, setIsHovered] = useState(false)
 
   // Use ticket layout for watchlist digital products
   if (isWatchlist) {
     return <TicketCard product={product} onClick={onClick} />
   }
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current || !isDigital) return
+
+    const card = cardRef.current
+    const rect = card.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+
+    const rotateXValue = ((y - centerY) / centerY) * -10
+    const rotateYValue = ((x - centerX) / centerX) * 10
+
+    setRotateX(rotateXValue)
+    setRotateY(rotateYValue)
+  }
+
+  const handleMouseLeave = () => {
+    if (!isDigital) return
+    setRotateX(0)
+    setRotateY(0)
+    setIsHovered(false)
+  }
+
+  const handleMouseEnter = () => {
+    if (!isDigital) return
+    setIsHovered(true)
+  }
+
   const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -42,13 +76,24 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
     <div
       ref={cardRef}
       onClick={handleClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
       className={`
         product-card group relative bg-white border border-border hover:border-accent transition-all cursor-pointer overflow-visible
         flex flex-col h-full
         ${isWishlist ? 'border-dashed' : ''}
         ${product.url ? 'cursor-pointer' : 'cursor-default'}
       `}
-      style={{
+      style={isDigital ? {
+        transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${isHovered ? 1.02 : 1})`,
+        transition: 'transform 0.1s ease-out, box-shadow 0.3s ease, z-index 0s',
+        boxShadow: isHovered
+          ? `${rotateY * 2}px ${rotateX * 2}px 20px rgba(0,0,0,0.15)`
+          : '0 2px 4px rgba(0,0,0,0.05)',
+        transformStyle: 'preserve-3d',
+        zIndex: isHovered ? 1000 : 1,
+      } : {
         boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
       }}
     >
@@ -57,7 +102,9 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         <div className="absolute -top-2 -right-2 w-48 bg-white shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[100] origin-top-right"
           style={{
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            transform: 'translateX(10%) translateY(240%)',
+            transform: isDigital
+              ? `translateX(10%) translateY(240%) scale(${isHovered ? 1 : 0.9}) translateZ(${isHovered ? '50px' : '0px'})`
+              : `translateX(10%) translateY(240%) scale(${isHovered ? 1 : 0.9})`,
             transition: 'transform 0.3s ease-out',
           }}
         >
@@ -66,7 +113,13 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
       )}
 
       {/* Image */}
-      <div className="product-card-media relative w-full h-64 overflow-visible flex items-center justify-center">
+      <div
+        className="product-card-media relative w-full h-64 overflow-visible flex items-center justify-center"
+        style={isDigital ? {
+          transform: `translateZ(${isHovered ? '30px' : '0px'})`,
+          transition: 'transform 0.3s ease-out',
+        } : {}}
+      >
         {imageSrc ? (
           <Image
             src={imageSrc}
