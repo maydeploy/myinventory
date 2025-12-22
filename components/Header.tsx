@@ -78,57 +78,6 @@ export default function Header({
 
   return (
     <>
-      {/* Top-left controls (theme + sort + view) */}
-      <div className="fixed top-3 left-3 z-50 transition-all duration-300">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 transition-all duration-300">
-          <button
-            onClick={toggleTheme}
-            className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-[10px] sm:text-xs text-ink-light bg-paper"
-            aria-label={isDark ? 'Turn the lights on (light mode)' : 'Turn the lights off (dark mode)'}
-          >
-            {isDark ? '[turn the lights on]' : '[turn the lights off]'}
-          </button>
-
-          {/* Sort dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setIsSortOpen(!isSortOpen)}
-              className="px-2 py-1 border border-border hover:bg-paper-dark transition-all text-[10px] sm:text-xs text-ink-light bg-paper"
-            >
-              {sortOptions.find(opt => opt.value === sortOption)?.label || 'sort'}
-            </button>
-
-            {isSortOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsSortOpen(false)}
-                />
-                <div className="absolute left-0 mt-1 w-48 bg-paper border border-border shadow-lg z-50">
-                  {sortOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        onSortChange(option.value)
-                        setIsSortOpen(false)
-                      }}
-                      className={`w-full px-3 py-2 text-left hover:bg-paper-dark transition-all text-xs ${
-                        sortOption === option.value
-                          ? 'bg-paper-dark text-ink font-bold'
-                          : 'text-ink-light'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-        </div>
-      </div>
-
       {/* Left vertical title panel - always visible, ends 24px above search bar */}
       <div
         className="fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-40 w-24 border-r border-border flex items-end justify-center pb-6"
@@ -141,10 +90,15 @@ export default function Header({
           className="font-display text-ink leading-tight whitespace-nowrap select-none"
           style={{
             transform: 'rotate(-90deg)',
-            transformOrigin: 'center center'
+            transformOrigin: 'center center',
+            fontSize: '24px',
+            textAlign: 'left',
+            verticalAlign: 'middle',
+            paddingRight: '0px',
+            paddingLeft: '180px',
           }}
         >
-          <span className="text-[20px] sm:text-[24px] md:text-[32px] font-bold">GOOD </span>
+          <span className="font-bold">GOOD </span>
           <span
             role="button"
             tabIndex={0}
@@ -152,14 +106,14 @@ export default function Header({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') onInventoryModeChange('physical')
             }}
-            className={`text-[20px] sm:text-[24px] md:text-[32px] font-bold cursor-pointer transition-opacity duration-300 ${
+            className={`font-bold cursor-pointer transition-opacity duration-300 ${
               inventoryMode === 'physical' ? 'opacity-100' : 'opacity-40'
             }`}
             aria-label="Show physical categories"
           >
             PHYSICAL
           </span>
-          <span className="text-[20px] sm:text-[24px] md:text-[32px] font-bold opacity-100">/</span>
+          <span className="font-bold opacity-100">/</span>
           <span
             role="button"
             tabIndex={0}
@@ -167,14 +121,14 @@ export default function Header({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') onInventoryModeChange('digital')
             }}
-            className={`text-[20px] sm:text-[24px] md:text-[32px] font-bold cursor-pointer transition-opacity duration-300 ${
+            className={`font-bold cursor-pointer transition-opacity duration-300 ${
               inventoryMode === 'digital' ? 'opacity-100' : 'opacity-40'
             }`}
             aria-label="Show digital categories"
           >
             DIGITAL
           </span>
-          <span className="text-[20px] sm:text-[24px] md:text-[32px] font-bold"> THINGS</span>
+          <span className="font-bold"> THINGS</span>
         </div>
       </div>
 

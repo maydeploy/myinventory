@@ -14,7 +14,8 @@
       "Bash(curl:*)",
       "Bash(npm uninstall:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }
