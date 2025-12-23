@@ -82,67 +82,44 @@ export default function Header({
       <div className="fixed top-6 left-8 z-50">
         <button
           onClick={toggleTheme}
-          className="relative w-14 h-24 bg-paper transition-all font-mono"
+          className="relative w-9 h-16 bg-paper border-2 border-border rounded-md shadow-md transition-all hover:shadow-lg"
           aria-label={isDark ? 'Turn the lights on (light mode)' : 'Turn the lights off (dark mode)'}
           style={{
-            background: isDark ? '#0a0a0a' : '#e0e0e0',
-            boxShadow: isDark
-              ? '0 0 0 3px #00ff00, 0 0 8px rgba(0,255,0,0.3), inset 0 0 20px rgba(0,255,0,0.1)'
-              : '0 0 0 3px #333, 0 0 8px rgba(0,0,0,0.2)',
-            borderRadius: '2px',
+            background: isDark ? '#1a1a1a' : '#f5f5f5',
           }}
         >
-          {/* Scan line effect */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: isDark
-                ? 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
-                : 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)',
-            }}
-          />
-
-          {/* Corner brackets - terminal style */}
-          <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2" style={{ borderColor: isDark ? '#00ff00' : '#333' }} />
-          <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2" style={{ borderColor: isDark ? '#00ff00' : '#333' }} />
-          <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2" style={{ borderColor: isDark ? '#00ff00' : '#333' }} />
-          <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2" style={{ borderColor: isDark ? '#00ff00' : '#333' }} />
-
           {/* Switch plate */}
           <div className="absolute inset-0 flex items-center justify-center">
             {/* Switch lever */}
             <div
-              className="w-6 h-14 transition-all duration-300 ease-out relative"
+              className="w-5 h-9 rounded-sm transition-all duration-300 ease-out"
               style={{
-                background: isDark ? '#00ff00' : '#333',
-                transform: isDark ? 'translateY(10px)' : 'translateY(-10px)',
+                background: isDark
+                  ? 'linear-gradient(to right, #333 0%, #555 50%, #333 100%)'
+                  : 'linear-gradient(to right, #ddd 0%, #fff 50%, #ddd 100%)',
+                transform: isDark ? 'translateY(6px)' : 'translateY(-6px)',
                 boxShadow: isDark
-                  ? '0 0 10px rgba(0,255,0,0.5), inset 0 0 5px rgba(0,255,0,0.3)'
-                  : '0 2px 4px rgba(0,0,0,0.3)',
-                clipPath: 'polygon(20% 0%, 80% 0%, 100% 10%, 100% 90%, 80% 100%, 20% 100%, 0% 90%, 0% 10%)',
+                  ? '0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.1)'
+                  : '0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5)',
               }}
             >
-              {/* Pixel detail lines */}
-              <div className="absolute top-1/2 left-0 right-0 h-[2px]" style={{ background: isDark ? '#003300' : '#666', transform: 'translateY(-1px)' }} />
-              <div className="absolute top-1/2 left-0 right-0 h-[2px]" style={{ background: isDark ? '#003300' : '#666', transform: 'translateY(1px)' }} />
+              {/* Switch knob */}
+              <div
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-5 rounded-sm"
+                style={{
+                  background: isDark ? '#222' : '#ccc',
+                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
+                }}
+              />
             </div>
           </div>
 
-          {/* Label with terminal brackets */}
-          <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-            <span className="text-[9px] font-mono font-bold" style={{ color: isDark ? '#00ff00' : '#333', textShadow: isDark ? '0 0 5px rgba(0,255,0,0.5)' : 'none' }}>
-              [{isDark ? 'OFF' : 'ON_'}]
+          {/* Label */}
+          <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+            <span className="text-[8px] text-ink-lighter font-mono">
+              {isDark ? 'OFF' : 'ON'}
             </span>
           </div>
-
-          {/* Blinking cursor when ON */}
-          {!isDark && (
-            <div className="absolute -bottom-6 left-1/2 transform translate-x-2 whitespace-nowrap">
-              <span className="text-[9px] font-mono font-bold animate-pulse" style={{ color: '#333' }}>
-                _
-              </span>
-            </div>
-          )}
         </button>
       </div>
 
