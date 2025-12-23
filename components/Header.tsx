@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { flushSync } from 'react-dom'
 import type { Category, CategoryFilter, FilterState, SortOption } from '@/types'
 
 type InventoryMode = 'physical' | 'digital'
@@ -41,6 +42,7 @@ export default function Header({
 }: HeaderProps) {
   const [isSortOpen, setIsSortOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
+  const switchRef = useRef<HTMLButtonElement>(null)
   const categoryOptions = inventoryMode === 'digital' ? digitalCategories : physicalCategories
 
   useEffect(() => {
@@ -54,11 +56,55 @@ export default function Header({
     document.documentElement.classList.toggle('dark', shouldBeDark)
   }, [])
 
-  const toggleTheme = () => {
+  const toggleTheme = async () => {
     const next = !isDark
-    setIsDark(next)
-    document.documentElement.classList.toggle('dark', next)
-    window.localStorage.setItem('theme', next ? 'dark' : 'light')
+
+    // Fallback for unsupported browsers or reduced-motion preference
+    if (
+      !switchRef.current ||
+      !document.startViewTransition ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      setIsDark(next)
+      document.documentElement.classList.toggle('dark', next)
+      window.localStorage.setItem('theme', next ? 'dark' : 'light')
+      return
+    }
+
+    // Start transition and await pseudo-elements attachment
+    await document.startViewTransition(() => {
+      flushSync(() => {
+        setIsDark(next)
+        document.documentElement.classList.toggle('dark', next)
+        window.localStorage.setItem('theme', next ? 'dark' : 'light')
+      })
+    }).ready
+
+    // Calculate circle origin and radius from the switch button
+    const { top, left, width, height } = switchRef.current.getBoundingClientRect()
+    const x = left + width / 2
+    const y = top + height / 2
+    const right = window.innerWidth - left
+    const bottom = window.innerHeight - top
+    const maxRadius = Math.hypot(
+      Math.max(left, right),
+      Math.max(top, bottom)
+    )
+
+    // Animate clip-path on new state
+    document.documentElement.animate(
+      {
+        clipPath: [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${maxRadius}px at ${x}px ${y}px)`
+        ]
+      },
+      {
+        duration: 600,
+        easing: 'ease-in-out',
+        pseudoElement: '::view-transition-new(root)'
+      }
+    )
   }
 
   const sortOptions: { value: SortOption; label: string }[] = [
@@ -81,6 +127,7 @@ export default function Header({
       {/* Light Switch Toggle - top left */}
       <div className="fixed top-6 left-8 z-50">
         <button
+          ref={switchRef}
           onClick={toggleTheme}
           className="relative w-9 h-16 bg-paper border-2 border-border rounded-md shadow-md transition-all hover:shadow-lg"
           aria-label={isDark ? 'Turn the lights on (light mode)' : 'Turn the lights off (dark mode)'}

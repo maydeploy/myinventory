@@ -450,3 +450,16 @@ body {
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out;
 }
+
+/* View Transitions API - Smooth dark mode toggle */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Ensure images transition smoothly */
+::view-transition-old(root),
+::view-transition-new(root) {
+  overflow: clip;
+}
