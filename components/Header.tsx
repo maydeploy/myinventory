@@ -78,6 +78,51 @@ export default function Header({
 
   return (
     <>
+      {/* Light Switch Toggle - top left */}
+      <div className="fixed top-6 left-8 z-50">
+        <button
+          onClick={toggleTheme}
+          className="relative w-12 h-20 bg-paper border-2 border-border rounded-md shadow-md transition-all hover:shadow-lg"
+          aria-label={isDark ? 'Turn the lights on (light mode)' : 'Turn the lights off (dark mode)'}
+          style={{
+            background: isDark ? '#1a1a1a' : '#f5f5f5',
+          }}
+        >
+          {/* Switch plate */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Switch lever */}
+            <div
+              className="w-6 h-12 rounded-sm transition-all duration-300 ease-out"
+              style={{
+                background: isDark
+                  ? 'linear-gradient(to right, #333 0%, #555 50%, #333 100%)'
+                  : 'linear-gradient(to right, #ddd 0%, #fff 50%, #ddd 100%)',
+                transform: isDark ? 'translateY(8px)' : 'translateY(-8px)',
+                boxShadow: isDark
+                  ? '0 2px 4px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.1)'
+                  : '0 2px 4px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5)',
+              }}
+            >
+              {/* Switch knob */}
+              <div
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 rounded-sm"
+                style={{
+                  background: isDark ? '#222' : '#ccc',
+                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Label */}
+          <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+            <span className="text-[8px] text-ink-lighter font-mono">
+              {isDark ? 'OFF' : 'ON'}
+            </span>
+          </div>
+        </button>
+      </div>
+
       {/* Left vertical title panel - always visible, ends 24px above search bar */}
       <div
         className="fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-40 w-24 border-r border-border flex items-end justify-center pb-6"
