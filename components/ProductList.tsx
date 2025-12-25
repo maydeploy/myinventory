@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import type { Product } from '@/types'
 import { useIsDarkMode } from '@/lib/useIsDarkMode'
@@ -38,12 +39,9 @@ function ProductListItem({
   const isDark = useIsDarkMode()
   const isWishlist = product.category === 'wishlist'
   const isDigital = isDigitalCategory(product.category)
-  const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
   const imageSrc = (isDark && product.darkModeCoverImage) ? product.darkModeCoverImage : product.coverImage
+  const isGameOrSoftware = product.category === 'game' || product.category === 'software'
+  const [isHovered, setIsHovered] = useState(false)
 
   const handleClick = () => {
     if (product.url) {
@@ -54,32 +52,43 @@ function ProductListItem({
   return (
     <div
       onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className={`
         w-full flex items-center gap-3 p-3 relative group
         ${isDigital ? '' : 'border-b border-border'} hover:bg-paper-dark transition-all
         ${index % 2 === 0 ? 'bg-white' : 'bg-paper'}
         ${product.url ? 'cursor-pointer' : 'cursor-default'}
       `}
+      style={{
+        zIndex: isHovered ? 99999 : 1,
+        position: 'relative',
+      }}
     >
       {/* Receipt Note on Hover */}
       {product.note && (
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 bg-white shadow-lg p-3 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-10 origin-center transform scale-90 group-hover:scale-100 translate-x-[10%] translate-y-[120%]"
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none origin-top transform scale-85 group-hover:scale-100"
           style={{
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))',
+            transform: isHovered
+              ? 'translate(-50%, -50%) scale(1) rotate(0deg)'
+              : 'translate(-50%, -50%) scale(0.85) rotate(4deg)',
+            transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out',
+            zIndex: 100000,
           }}
         >
-          <ReceiptNote note={product.note} date={formattedDate} />
+          <ReceiptNote note={product.note} date={product.date} />
         </div>
       )}
 
       {/* Thumbnail */}
-      <div className="relative w-12 h-12 flex-shrink-0 border border-border flex items-center justify-center bg-white">
+      <div className="relative w-12 h-12 flex-shrink-0 border border-border flex items-center justify-center bg-white overflow-hidden">
         {imageSrc ? (
           <Image
             src={imageSrc}
             alt={product.name}
             fill
-            className="object-contain"
+            className={isGameOrSoftware ? 'object-cover' : 'object-contain'}
             sizes="48px"
           />
         ) : (

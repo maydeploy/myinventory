@@ -1,6 +1,6 @@
 'use client'
 
-interface ReceiptNoteProps {
+interface StickyNoteProps {
   note: string
   date: string
   className?: string
@@ -24,7 +24,7 @@ function calculateDaysSince(dateString: string): number {
   return Math.max(0, diffDays)
 }
 
-export default function ReceiptNote({ note, date, className = '' }: ReceiptNoteProps) {
+export default function StickyNote({ note, date, className = '' }: StickyNoteProps) {
   const daysSince = calculateDaysSince(date)
   const enjoymentMessage = daysSince === 0
     ? 'just got this today!'
@@ -33,27 +33,24 @@ export default function ReceiptNote({ note, date, className = '' }: ReceiptNoteP
     : `enjoyed for ${daysSince} days`
 
   return (
-    <div className={`receipt-note ${className}`}>
-      {/* Top separator */}
-      <div className="text-[9px] text-[#333] dark:text-[#ccc] font-mono mb-3 overflow-hidden whitespace-nowrap">
-        {'-'.repeat(40)}
-      </div>
+    <div
+      className={`sticky-note bg-[#fef68a] dark:bg-[#854d0e] p-4 shadow-lg relative ${className}`}
+      style={{
+        transform: 'rotate(-1deg)',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      }}
+    >
+      <div className="space-y-2.5">
+        {/* Note text */}
+        <p className="text-[13px] text-[#422006] dark:text-[#fef3c7] leading-relaxed whitespace-pre-wrap break-words">
+          {note}
+        </p>
 
-      {/* Note content - dominant */}
-      <div className="text-[13px] text-[#000] dark:text-[#f0f0f0] font-mono leading-[1.6] whitespace-pre-wrap break-words mb-3 font-medium">
-        {note}
-      </div>
-
-      {/* Bottom separator */}
-      <div className="text-[9px] text-[#333] dark:text-[#ccc] font-mono mb-2 overflow-hidden whitespace-nowrap">
-        {'-'.repeat(40)}
-      </div>
-
-      {/* Date footer - tertiary */}
-      <div className="text-center text-[9px] text-[#666] dark:text-[#888] font-mono uppercase tracking-[0.05em]">
-        {enjoymentMessage}
+        {/* Date message */}
+        <p className="text-[11px] text-[#713f12] dark:text-[#fde68a] italic border-t border-[#422006]/10 dark:border-[#fde68a]/20 pt-2">
+          {enjoymentMessage}
+        </p>
       </div>
     </div>
   )
 }
-

@@ -66,14 +66,14 @@ body {
   border-width: 1px;
 }
 
-/* Sticky note typography: PP Neue Bit Regular */
+/* Sticky note typography */
 .sticky-note {
   font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace !important;
   font-weight: 400;
-  letter-spacing: -0.5px;
-  font-size: 14.4px;
-  line-height: 0px;
+  letter-spacing: -0.02em;
+  font-size: 13px;
+  line-height: 1.5;
   text-transform: none;
 }
 
@@ -86,81 +86,72 @@ body {
 .receipt-note {
   font-family: "Courier New", "Courier", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
   font-weight: 400;
-  letter-spacing: 0;
-  background: #ffffff;
+  letter-spacing: 0em;
   color: #000000;
   width: 100%;
   position: relative;
+  padding: 10px 0;
+  border-radius: 0;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  /* Backdrop image - adjusts height automatically based on content */
+  background-color: transparent;
+  min-height: fit-content;
+  box-shadow: none;
+  transition: transform 0.3s ease;
 }
 
-/* Paper texture effect */
+/* Hover effect - tilt right by 10 degrees */
+.receipt-note:hover {
+  transform: rotate(10deg);
+}
+
+/* Backdrop image layer - positioned behind content, 15px wider on each side */
 .receipt-note::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  left: -3px;
+  right: -3px;
   bottom: 0;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 1px,
-      rgba(0, 0, 0, 0.01) 1px,
-      rgba(0, 0, 0, 0.01) 2px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 1px,
-      rgba(0, 0, 0, 0.01) 1px,
-      rgba(0, 0, 0, 0.01) 2px
-    );
-  opacity: 0.5;
+  width: calc(100% + 6px);
+  height: 100%;
+  background-image: url('/receipt-backdrop.png');
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  z-index: 0;
   pointer-events: none;
-  z-index: 1;
 }
 
+/* Add horizontal padding to content, not the container */
 .receipt-note > * {
   position: relative;
-  z-index: 2;
+  z-index: 1;
+  padding-left: 12px;
+  padding-right: 12px;
+  opacity: 0.8;
 }
 
-/* Refined dotted divider lines - round circle dots */
-.receipt-note .border-dashed {
-  border: none !important;
-  height: 1px !important;
-  background-image: radial-gradient(circle, #999 0.5px, transparent 0.5px) !important;
-  background-size: 4px 1px !important;
-  background-repeat: repeat-x !important;
-  background-position: 0 center !important;
+/* Reduce dotted line length by 8px */
+.receipt-note > div:first-child,
+.receipt-note > div:nth-child(3) {
+  max-width: calc(100% - 8px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .dark .receipt-note {
-  background: #1a1a1a !important;
+  background-color: transparent !important;
   color: #e0e0e0 !important;
+  box-shadow: none;
 }
 
 .dark .receipt-note::before {
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 1px,
-      rgba(255, 255, 255, 0.02) 1px,
-      rgba(255, 255, 255, 0.02) 2px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 1px,
-      rgba(255, 255, 255, 0.02) 1px,
-      rgba(255, 255, 255, 0.02) 2px
-    );
-}
-
-.dark .receipt-note .border-dashed {
-  background-image: radial-gradient(circle, #555 0.5px, transparent 0.5px) !important;
+  background-image: url('/receipt-backdrop.png');
+  /* Increased exposure by 20% (from 20% to 24% brightness) */
+  filter: brightness(0.24);
 }
 
 /* Dark mode (class-based): flip existing Tailwind utility classes via CSS overrides */

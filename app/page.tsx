@@ -4,6 +4,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 import Header from '@/components/Header'
 import ProductGrid from '@/components/ProductGrid'
+import DigitalCategorySections from '@/components/DigitalCategorySections'
 import DotGrid from '@/components/DotGrid'
 import type { Product, FilterState, SortOption } from '@/types'
 import { isDigitalCategory } from '@/lib/categories'
@@ -48,8 +49,8 @@ export default function Home() {
   const handleInventoryModeChange = (mode: InventoryMode) => {
     setInventoryMode(mode)
     // Reset category filters when switching modes so we don't end up with invalid selections.
-    // For digital mode, default to watchlist
-    setFilters((prev) => ({ ...prev, category: mode === 'digital' ? 'watchlist' : 'all' }))
+    // Default to 'all' for both modes
+    setFilters((prev) => ({ ...prev, category: 'all' }))
   }
 
 
@@ -70,8 +71,9 @@ export default function Home() {
       if (!matchesSearch) return false
     }
 
-    // Category filter
-    if (filters.category !== 'all' && product.category !== filters.category) {
+    // Category filter - only apply for physical mode
+    // For digital mode, we show all categories on one page
+    if (inventoryMode === 'physical' && filters.category !== 'all' && product.category !== filters.category) {
       return false
     }
 
@@ -163,6 +165,12 @@ export default function Home() {
               </p>
             </div>
           </div>
+        ) : inventoryMode === 'digital' ? (
+          <DigitalCategorySections
+            products={sortedProducts}
+            onProductClick={() => {}}
+            scrollToCategory={filters.category}
+          />
         ) : (
           <ProductGrid
             products={sortedProducts}

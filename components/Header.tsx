@@ -71,40 +71,48 @@ export default function Header({
       return
     }
 
-    // Start transition and await pseudo-elements attachment
-    await document.startViewTransition(() => {
-      flushSync(() => {
-        setIsDark(next)
-        document.documentElement.classList.toggle('dark', next)
-        window.localStorage.setItem('theme', next ? 'dark' : 'light')
-      })
-    }).ready
+    try {
+      // Start transition and await pseudo-elements attachment
+      await document.startViewTransition(() => {
+        flushSync(() => {
+          setIsDark(next)
+          document.documentElement.classList.toggle('dark', next)
+          window.localStorage.setItem('theme', next ? 'dark' : 'light')
+        })
+      }).ready
 
-    // Calculate circle origin and radius from the switch button
-    const { top, left, width, height } = switchRef.current.getBoundingClientRect()
-    const x = left + width / 2
-    const y = top + height / 2
-    const right = window.innerWidth - left
-    const bottom = window.innerHeight - top
-    const maxRadius = Math.hypot(
-      Math.max(left, right),
-      Math.max(top, bottom)
-    )
+      // Calculate circle origin and radius from the switch button
+      const { top, left, width, height } = switchRef.current.getBoundingClientRect()
+      const x = left + width / 2
+      const y = top + height / 2
+      const right = window.innerWidth - left
+      const bottom = window.innerHeight - top
+      const maxRadius = Math.hypot(
+        Math.max(left, right),
+        Math.max(top, bottom)
+      )
 
-    // Animate clip-path on new state
-    document.documentElement.animate(
-      {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${maxRadius}px at ${x}px ${y}px)`
-        ]
-      },
-      {
-        duration: 600,
-        easing: 'ease-in-out',
-        pseudoElement: '::view-transition-new(root)'
-      }
-    )
+      // Animate clip-path on new state
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${maxRadius}px at ${x}px ${y}px)`
+          ]
+        },
+        {
+          duration: 600,
+          easing: 'ease-in-out',
+          pseudoElement: '::view-transition-new(root)'
+        }
+      )
+    } catch (error) {
+      // Fallback if view transition fails
+      console.error('View transition failed:', error)
+      setIsDark(next)
+      document.documentElement.classList.toggle('dark', next)
+      window.localStorage.setItem('theme', next ? 'dark' : 'light')
+    }
   }
 
   const sortOptions: { value: SortOption; label: string }[] = [
@@ -125,18 +133,18 @@ export default function Header({
   return (
     <>
       {/* Light Switch Toggle - top left */}
-      <div className="fixed top-6 left-8 z-50">
+      <div className="fixed top-6 left-8 z-[100002]">
         <button
           ref={switchRef}
           onClick={toggleTheme}
-          className="relative w-9 h-16 bg-paper border-2 border-border rounded-md shadow-md transition-all hover:shadow-lg"
+          className="relative w-9 h-16 bg-paper border-2 border-border rounded-md shadow-md transition-all hover:shadow-lg cursor-pointer"
           aria-label={isDark ? 'Turn the lights on (light mode)' : 'Turn the lights off (dark mode)'}
           style={{
             background: isDark ? '#1a1a1a' : '#f5f5f5',
           }}
         >
           {/* Switch plate */}
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             {/* Switch lever */}
             <div
               className="w-5 h-9 rounded-sm transition-all duration-300 ease-out"
@@ -162,7 +170,7 @@ export default function Header({
           </div>
 
           {/* Label */}
-          <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+          <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap pointer-events-none">
             <span className="text-[8px] text-ink-lighter font-mono">
               {isDark ? 'OFF' : 'ON'}
             </span>
@@ -172,7 +180,7 @@ export default function Header({
 
       {/* Left vertical title panel - always visible, ends 24px above search bar */}
       <div
-        className="fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-40 w-24 border-r border-border flex items-end justify-center pb-6"
+        className="fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-[100001] w-24 flex items-end justify-center pb-6"
         style={{
           boxSizing: 'content-box',
           background: 'unset',
@@ -225,25 +233,23 @@ export default function Header({
       </div>
 
       {/* Bottom Command Line (search bar) - full width */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-paper border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 z-[100001] bg-paper border-t border-border">
         <div className="px-4 py-2 md:px-8">
           <div className="flex flex-col gap-2">
             {/* Filters (below divider, above search) */}
             <div className="flex flex-wrap gap-x-2 gap-y-1 font-mono text-[10px] sm:text-xs transition-all duration-300">
-              {inventoryMode === 'physical' && (
-                <button
-                  onClick={() => setCategoryFilter('all')}
-                  className={`px-2 py-1 transition-colors ${
-                    filters.category === 'all'
-                      ? 'text-ink bg-paper-dark'
-                      : 'text-ink-light hover:text-ink'
-                  }`}
-                  aria-label="Show all categories"
-                >
-                  {filters.category === 'all' ? '• ' : '  '}
-                  all
-                </button>
-              )}
+              <button
+                onClick={() => setCategoryFilter('all')}
+                className={`px-2 py-1 transition-colors ${
+                  filters.category === 'all'
+                    ? 'text-ink bg-paper-dark'
+                    : 'text-ink-light hover:text-ink'
+                }`}
+                aria-label={inventoryMode === 'digital' ? 'Scroll to top' : 'Show all categories'}
+              >
+                {filters.category === 'all' ? '• ' : '  '}
+                all
+              </button>
 
               {categoryOptions.map((cat) => (
                 <button
@@ -254,6 +260,7 @@ export default function Header({
                       ? 'text-ink bg-paper-dark'
                       : 'text-ink-light hover:text-ink'
                   }`}
+                  aria-label={inventoryMode === 'digital' ? `Scroll to ${cat.label}` : `Filter by ${cat.label}`}
                 >
                   {filters.category === cat.value ? '• ' : '  '}
                   {cat.label}

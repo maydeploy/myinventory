@@ -23,6 +23,7 @@ export default function ProductShuffleView({
   const ref = useRef<HTMLDivElement | null>(null)
   const [seed, setSeed] = useState(1)
   const [positions, setPositions] = useState<Record<string, Pos>>({})
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
 
   const ids = useMemo(() => products.map(p => p.id), [products])
 
@@ -99,9 +100,15 @@ export default function ProductShuffleView({
                 top: pos?.y ?? 0,
                 transform: `rotate(${pos?.r ?? 0}deg)`,
                 width: 320,
+                zIndex: hoveredId === p.id ? 99999 : 1,
+                position: 'relative',
               }}
             >
-              <ProductCard product={p} onClick={() => {}} />
+              <ProductCard
+                product={p}
+                onClick={() => {}}
+                onHoverChange={(isHovered) => setHoveredId(isHovered ? p.id : null)}
+              />
             </div>
           )
         })}

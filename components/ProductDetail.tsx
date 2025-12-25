@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import type { Product } from '@/types'
@@ -14,48 +14,9 @@ interface ProductDetailProps {
 }
 
 export default function ProductDetail({ product, onClose }: ProductDetailProps) {
-  const [ditheredImage, setDitheredImage] = useState<string>('')
   const isDark = useIsDarkMode()
   const imageSrc = (isDark && product.darkModeCoverImage) ? product.darkModeCoverImage : product.coverImage
-
-  useEffect(() => {
-    setDitheredImage('')
-    if (!imageSrc) return
-
-    const img = new window.Image()
-    img.crossOrigin = 'anonymous'
-    img.src = imageSrc
-
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-
-      canvas.width = img.width
-      canvas.height = img.height
-      ctx.drawImage(img, 0, 0)
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const data = imageData.data
-
-      for (let i = 0; i < data.length; i += 4) {
-        const grayscale = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11
-
-        if (grayscale > 128) {
-          data[i] = 26
-          data[i + 1] = 26
-          data[i + 2] = 26
-        } else {
-          data[i] = 0
-          data[i + 1] = 255
-          data[i + 2] = 65
-        }
-      }
-
-      ctx.putImageData(imageData, 0, 0)
-      setDitheredImage(canvas.toDataURL())
-    }
-  }, [imageSrc])
+  const isGameOrSoftware = product.category === 'game' || product.category === 'software'
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -94,7 +55,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
           transition={{ duration: 0.15, ease: "easeOut" }}
           className="receipt-note relative w-full max-w-md bg-white shadow-lg"
           style={{
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
           }}
         >
           {/* Close button */}
@@ -108,25 +69,17 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
           <div className="p-6 space-y-4">
             {/* Image */}
-            {ditheredImage || imageSrc ? (
-              <div className="relative w-full aspect-square flex items-center justify-center mb-4">
-                {ditheredImage ? (
-                  <img
-                    src={ditheredImage}
-                    alt={product.name}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                ) : imageSrc ? (
-                  <Image
-                    src={imageSrc}
-                    alt={product.name}
-                    fill
-                    className="object-contain"
-                    sizes="400px"
-                  />
-                ) : null}
+            {imageSrc && (
+              <div className="relative w-full aspect-square flex items-center justify-center mb-4 overflow-hidden">
+                <Image
+                  src={imageSrc}
+                  alt={product.name}
+                  fill
+                  className={isGameOrSoftware ? 'object-cover' : 'object-contain'}
+                  sizes="400px"
+                />
               </div>
-            ) : null}
+            )}
 
             {/* Title */}
             <h2 className="text-xl font-mono text-ink leading-tight">
@@ -161,7 +114,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
             {/* Notes */}
             {product.note && (
               <div className="pt-3">
-                <ReceiptNote note={product.note} date={formattedDate} />
+                <ReceiptNote note={product.note} date={product.date} />
               </div>
             )}
 

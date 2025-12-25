@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { otBulbMonoline, ppMondwest, ppNeueBit } from '@/lib/fonts'
+import { DitherSettingsProvider } from '@/lib/DitherSettingsContext'
 
 export const metadata: Metadata = {
   title: 'Grid of Good Things - May Zhou',
@@ -28,7 +29,9 @@ export default function RootLayout({
         className={`${otBulbMonoline.variable} ${ppMondwest.variable} ${ppNeueBit.variable} font-mono bg-beige text-gray-dark antialiased`}
         style={{ fontFamily: "'Space Mono', 'Courier New', monospace" }}
       >
-        {children}
+        <DitherSettingsProvider>
+          {children}
+        </DitherSettingsProvider>
       </body>
     </html>
   )

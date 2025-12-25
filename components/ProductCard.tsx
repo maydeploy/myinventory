@@ -11,9 +11,10 @@ import ReceiptNote from './ReceiptNote'
 interface ProductCardProps {
   product: Product
   onClick: () => void
+  onHoverChange?: (isHovered: boolean) => void
 }
 
-export default function ProductCard({ product, onClick }: ProductCardProps) {
+export default function ProductCard({ product, onClick, onHoverChange }: ProductCardProps) {
   const isDark = useIsDarkMode()
   const isWishlist = product.category === 'wishlist'
   const isWatchlist = product.category === 'watchlist'
@@ -48,23 +49,21 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
   }
 
   const handleMouseLeave = () => {
+    setIsHovered(false)
+    onHoverChange?.(false)
     if (!isDigital) return
     setRotateX(0)
     setRotateY(0)
-    setIsHovered(false)
   }
 
   const handleMouseEnter = () => {
-    if (!isDigital) return
     setIsHovered(true)
+    onHoverChange?.(true)
+    if (!isDigital) return
   }
 
-  const formattedDate = new Date(product.createdTime).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
   const imageSrc = (isDark && product.darkModeCoverImage) ? product.darkModeCoverImage : product.coverImage
+  const isGameOrSoftware = product.category === 'game' || product.category === 'software'
 
   const handleClick = () => {
     if (product.url) {
@@ -92,40 +91,36 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           ? `${rotateY * 2}px ${rotateX * 2}px 20px rgba(0,0,0,0.15)`
           : '0 2px 4px rgba(0,0,0,0.05)',
         transformStyle: 'preserve-3d',
-        zIndex: isHovered ? 1000 : 1,
+        zIndex: isHovered ? 99999 : 1,
+        position: 'relative',
       } : {
         boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        zIndex: isHovered ? 99999 : 1,
+        position: 'relative',
       }}
     >
       {/* Receipt Note on Hover */}
       {product.note && (
-        <div className="absolute -top-2 -right-2 w-48 bg-white shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[100] origin-top-right"
+        <div className="absolute top-0 right-0 w-52 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none origin-top-right"
           style={{
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            transform: isDigital
-              ? `translateX(10%) translateY(240%) scale(${isHovered ? 1 : 0.9}) translateZ(${isHovered ? '50px' : '0px'})`
-              : `translateX(10%) translateY(240%) scale(${isHovered ? 1 : 0.9})`,
-            transition: 'transform 0.3s ease-out',
+            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))',
+            transform: `translateX(5%) translateY(70%) scale(${isHovered ? 1 : 0.85}) rotate(${isHovered ? '0deg' : '8deg'})`,
+            transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out',
+            zIndex: 100000,
           }}
         >
-          <ReceiptNote note={product.note} date={formattedDate} />
+          <ReceiptNote note={product.note} date={product.date} />
         </div>
       )}
 
       {/* Image */}
-      <div
-        className="product-card-media relative w-full h-64 overflow-visible flex items-center justify-center"
-        style={isDigital ? {
-          transform: `translateZ(${isHovered ? '30px' : '0px'})`,
-          transition: 'transform 0.3s ease-out',
-        } : {}}
-      >
+      <div className="product-card-media relative w-full h-64 overflow-visible flex items-center justify-center">
         {imageSrc ? (
           <Image
             src={imageSrc}
             alt={product.name}
             fill
-            className={`object-contain transition-transform duration-150 ease-out will-change-transform ${
+            className={`${isGameOrSoftware ? 'object-cover' : 'object-contain'} transition-transform duration-150 ease-out will-change-transform ${
               !isDigital ? 'group-hover:scale-[1.2] group-hover:-rotate-[10deg] group-hover:translate-x-[-10%] group-hover:translate-y-[-10%]' : ''
             }`}
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
