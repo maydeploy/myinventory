@@ -88,7 +88,9 @@ function ProductListItem({
             src={imageSrc}
             alt={product.name}
             fill
-            className={isGameOrSoftware ? 'object-cover' : 'object-contain'}
+            className={`${isGameOrSoftware ? 'object-cover' : 'object-contain'} ${
+              isDigital ? 'grayscale group-hover:grayscale-0' : ''
+            } transition-all duration-150`}
             sizes="48px"
           />
         ) : (

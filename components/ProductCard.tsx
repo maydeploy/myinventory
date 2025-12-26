@@ -120,7 +120,9 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
             src={imageSrc}
             alt={product.name}
             fill
-            className={`${isGameOrSoftware ? 'object-cover' : 'object-contain'} transition-transform duration-150 ease-out will-change-transform ${
+            className={`${isGameOrSoftware ? 'object-cover' : 'object-contain'} transition-all duration-150 ease-out will-change-transform ${
+              isDigital ? 'grayscale group-hover:grayscale-0' : ''
+            } ${
               !isDigital ? 'group-hover:scale-[1.2] group-hover:-rotate-[10deg] group-hover:translate-x-[-10%] group-hover:translate-y-[-10%]' : ''
             }`}
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
