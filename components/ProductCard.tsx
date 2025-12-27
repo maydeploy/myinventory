@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import type { Product } from '@/types'
 import { useIsDarkMode } from '@/lib/useIsDarkMode'
@@ -24,6 +24,55 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
   const [rotateX, setRotateX] = useState(0)
   const [rotateY, setRotateY] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
+  const [isInView, setIsInView] = useState(false)
+  const [showScrollNote, setShowScrollNote] = useState(false)
+
+  // Detect if device supports hover
+  const [supportsHover, setSupportsHover] = useState(true)
+
+  useEffect(() => {
+    // Check if device supports hover using media query
+    const hoverQuery = window.matchMedia('(hover: hover)')
+    setSupportsHover(hoverQuery.matches)
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setSupportsHover(e.matches)
+    }
+
+    hoverQuery.addEventListener('change', handleChange)
+    return () => hoverQuery.removeEventListener('change', handleChange)
+  }, [])
+
+  // Scroll-based reveal for touch devices
+  useEffect(() => {
+    if (!cardRef.current || !product.note || supportsHover) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isInView) {
+            setIsInView(true)
+            setShowScrollNote(true)
+            // Hide after 2 seconds
+            setTimeout(() => {
+              setShowScrollNote(false)
+            }, 2000)
+          }
+        })
+      },
+      {
+        threshold: 0.5, // Trigger when 50% of card is visible
+      }
+    )
+
+    observer.observe(cardRef.current)
+
+    return () => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current)
+      }
+    }
+  }, [product.note, supportsHover, isInView])
 
   // Use ticket layout for watchlist digital products
   if (isWatchlist) {
@@ -31,7 +80,7 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
   }
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || !isDigital) return
+    if (!cardRef.current || !isDigital || !supportsHover) return
 
     const card = cardRef.current
     const rect = card.getBoundingClientRect()
@@ -49,6 +98,7 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
   }
 
   const handleMouseLeave = () => {
+    if (!supportsHover) return
     setIsHovered(false)
     onHoverChange?.(false)
     if (!isDigital) return
@@ -57,6 +107,7 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
   }
 
   const handleMouseEnter = () => {
+    if (!supportsHover) return
     setIsHovered(true)
     onHoverChange?.(true)
     if (!isDigital) return
@@ -100,12 +151,14 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
         position: 'relative',
       }}
     >
-      {/* Receipt Note on Hover */}
+      {/* Receipt Note - Hover on desktop, Scroll-reveal on touch devices */}
       {product.note && (
-        <div className="absolute top-0 right-0 w-52 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none origin-top-right"
+        <div
+          className="absolute top-0 right-0 w-52 transition-all duration-300 pointer-events-none origin-top-right"
           style={{
             filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))',
-            transform: `translateX(25%) translateY(100%) scale(${isHovered ? 1 : 0.85}) rotate(${isHovered ? '0deg' : '8deg'})`,
+            opacity: supportsHover ? (isHovered ? 1 : 0) : (showScrollNote ? 1 : 0),
+            transform: `translateX(25%) translateY(100%) scale(${(supportsHover && isHovered) || showScrollNote ? 1 : 0.85}) rotate(${(supportsHover && isHovered) || showScrollNote ? '0deg' : '8deg'})`,
             transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out',
             zIndex: 100000,
           }}
@@ -123,9 +176,11 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
             fill
             unoptimized
             className={`object-cover scale-[0.8] transition-all duration-150 ease-out will-change-transform ${
-              shouldBeGrayscale ? 'grayscale group-hover:grayscale-0' : ''
+              shouldBeGrayscale ? 'grayscale' : ''
             } ${
-              !isDigital ? 'group-hover:scale-[0.96] group-hover:-rotate-[10deg] group-hover:translate-x-[-10%] group-hover:translate-y-[-10%]' : ''
+              shouldBeGrayscale && supportsHover ? 'hover:grayscale-0' : ''
+            } ${
+              !isDigital && supportsHover ? 'group-hover:scale-[0.96] group-hover:-rotate-[10deg] group-hover:translate-x-[-10%] group-hover:translate-y-[-10%]' : ''
             }`}
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             onError={(e) => {
