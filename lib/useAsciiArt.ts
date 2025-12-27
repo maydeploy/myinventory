@@ -104,3 +104,4 @@ export function useAsciiArt(imageSrc: string | undefined, enabled: boolean): str
   return asciiImage
 }
 
+

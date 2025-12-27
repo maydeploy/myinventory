@@ -232,6 +232,47 @@ export default function Header({
         </div>
       </div>
 
+      {/* Large horizontal title - shown when there's enough space (xl screens) */}
+      <div className="hidden xl:flex fixed top-12 left-1/2 -translate-x-1/2 z-[100000] flex-col items-center gap-1 select-none pointer-events-none">
+        <h1 className="font-display font-bold text-ink text-6xl leading-none">
+          GOOD
+        </h1>
+        <div className="font-display font-bold text-6xl leading-none pointer-events-auto">
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={() => onInventoryModeChange('physical')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') onInventoryModeChange('physical')
+            }}
+            className={`cursor-pointer transition-opacity duration-300 ${
+              inventoryMode === 'physical' ? 'text-ink opacity-100' : 'text-ink opacity-40'
+            }`}
+            aria-label="Show physical categories"
+          >
+            PHYSICAL
+          </span>
+          <span className="text-ink opacity-100">/</span>
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={() => onInventoryModeChange('digital')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') onInventoryModeChange('digital')
+            }}
+            className={`cursor-pointer transition-opacity duration-300 ${
+              inventoryMode === 'digital' ? 'text-ink opacity-100' : 'text-ink opacity-40'
+            }`}
+            aria-label="Show digital categories"
+          >
+            DIGITAL
+          </span>
+        </div>
+        <h1 className="font-display font-bold text-ink text-6xl leading-none">
+          THINGS
+        </h1>
+      </div>
+
       {/* Bottom Command Line (search bar) - full width */}
       <div className="fixed bottom-0 left-0 right-0 z-[100001] bg-paper border-t border-border">
         <div className="px-4 py-2 md:px-8">
