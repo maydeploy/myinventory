@@ -178,9 +178,9 @@ export default function Header({
         </button>
       </div>
 
-      {/* Left vertical title panel - always visible, ends 24px above search bar */}
+      {/* Left vertical title panel - visible on smaller screens, hidden on xl+ */}
       <div
-        className="fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-[100001] w-24 flex items-end justify-center pb-6"
+        className="xl:hidden fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-[100001] w-24 flex items-end justify-center pb-6"
         style={{
           boxSizing: 'content-box',
           background: 'unset',
@@ -232,12 +232,12 @@ export default function Header({
         </div>
       </div>
 
-      {/* Large horizontal title - shown when there's enough space (xl screens) */}
-      <div className="hidden xl:flex fixed top-12 left-1/2 -translate-x-1/2 z-[100000] flex-col items-center gap-1 select-none pointer-events-none">
-        <h1 className="font-display font-bold text-ink text-6xl leading-none">
+      {/* Large horizontal title - shown in bottom left on xl+ screens */}
+      <div className="hidden xl:flex fixed left-8 bottom-[calc(4.5rem+24px+1.5rem)] z-[100001] flex-col items-start gap-0 select-none">
+        <h1 className="font-display font-bold text-ink text-6xl leading-[0.7] tracking-normal">
           GOOD
         </h1>
-        <div className="font-display font-bold text-6xl leading-none pointer-events-auto">
+        <div className="font-display font-bold text-6xl leading-[0.7] tracking-normal">
           <span
             role="button"
             tabIndex={0}
@@ -245,14 +245,14 @@ export default function Header({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') onInventoryModeChange('physical')
             }}
-            className={`cursor-pointer transition-opacity duration-300 ${
+            className={`cursor-pointer transition-opacity duration-300 tracking-normal ${
               inventoryMode === 'physical' ? 'text-ink opacity-100' : 'text-ink opacity-40'
             }`}
             aria-label="Show physical categories"
           >
             PHYSICAL
           </span>
-          <span className="text-ink opacity-100">/</span>
+          <span className="text-ink opacity-100 tracking-normal">/</span>
           <span
             role="button"
             tabIndex={0}
@@ -260,7 +260,7 @@ export default function Header({
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') onInventoryModeChange('digital')
             }}
-            className={`cursor-pointer transition-opacity duration-300 ${
+            className={`cursor-pointer transition-opacity duration-300 tracking-normal ${
               inventoryMode === 'digital' ? 'text-ink opacity-100' : 'text-ink opacity-40'
             }`}
             aria-label="Show digital categories"
@@ -268,7 +268,7 @@ export default function Header({
             DIGITAL
           </span>
         </div>
-        <h1 className="font-display font-bold text-ink text-6xl leading-none">
+        <h1 className="font-display font-bold text-ink text-6xl leading-[0.7] tracking-normal">
           THINGS
         </h1>
       </div>
