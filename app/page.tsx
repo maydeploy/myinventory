@@ -126,7 +126,7 @@ export default function Home() {
         onFiltersChange={setFilters}
       />
 
-      <main className="flex-1 p-4 md:p-8 pb-44 md:pb-[13.5rem] pl-28 md:pl-32">
+      <main className="flex-1 p-4 md:p-8 pb-44 md:pb-[13.5rem] pl-28 md:pl-32 xl:pl-96 2xl:pl-[28rem]">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr gap-6 max-w-7xl mx-auto">
             {Array.from({ length: 8 }).map((_, index) => (

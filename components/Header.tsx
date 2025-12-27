@@ -180,14 +180,14 @@ export default function Header({
 
       {/* Left vertical title panel - visible on smaller screens, hidden on xl+ */}
       <div
-        className="xl:hidden fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-[100001] w-24 flex items-end justify-center pb-6"
+        className="xl:opacity-0 xl:pointer-events-none fixed left-0 top-0 bottom-[calc(4.5rem+24px)] z-[100001] w-24 flex items-end justify-center pb-6 transition-opacity duration-500 ease-in-out"
         style={{
           boxSizing: 'content-box',
           background: 'unset',
         }}
       >
         <div
-          className="font-display text-ink leading-tight whitespace-nowrap select-none"
+          className="font-display text-ink leading-tight whitespace-nowrap select-none transition-transform duration-500 ease-in-out"
           style={{
             transform: 'rotate(-90deg)',
             transformOrigin: 'center center',
@@ -232,12 +232,12 @@ export default function Header({
         </div>
       </div>
 
-      {/* Large horizontal title - shown in bottom left on xl+ screens */}
-      <div className="hidden xl:flex fixed left-8 bottom-[calc(4.5rem+24px+1.5rem)] z-[100001] flex-col items-start gap-0 select-none">
-        <h1 className="font-display font-bold text-ink text-6xl leading-[0.7] tracking-normal">
+      {/* Large horizontal title - shown in bottom left only on xl+ screens with sufficient space */}
+      <div className="opacity-0 xl:opacity-100 pointer-events-none xl:pointer-events-auto fixed left-8 bottom-[calc(4.5rem+24px+1.5rem)] z-[100001] flex-col items-start gap-0 select-none transition-opacity duration-500 ease-in-out hidden xl:flex">
+        <h1 className="font-display font-bold text-ink text-5xl 2xl:text-6xl leading-[0.6] 2xl:leading-[0.7] tracking-normal">
           GOOD
         </h1>
-        <div className="font-display font-bold text-6xl leading-[0.7] tracking-normal">
+        <div className="font-display font-bold text-5xl 2xl:text-6xl leading-[0.6] 2xl:leading-[0.7] tracking-normal">
           <span
             role="button"
             tabIndex={0}
@@ -268,7 +268,7 @@ export default function Header({
             DIGITAL
           </span>
         </div>
-        <h1 className="font-display font-bold text-ink text-6xl leading-[0.7] tracking-normal">
+        <h1 className="font-display font-bold text-ink text-5xl 2xl:text-6xl leading-[0.6] 2xl:leading-[0.7] tracking-normal">
           THINGS
         </h1>
       </div>

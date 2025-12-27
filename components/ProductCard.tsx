@@ -105,7 +105,7 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
         <div className="absolute top-0 right-0 w-52 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none origin-top-right"
           style={{
             filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))',
-            transform: `translateX(5%) translateY(70%) scale(${isHovered ? 1 : 0.85}) rotate(${isHovered ? '0deg' : '8deg'})`,
+            transform: `translateX(25%) translateY(100%) scale(${isHovered ? 1 : 0.85}) rotate(${isHovered ? '0deg' : '8deg'})`,
             transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out',
             zIndex: 100000,
           }}
@@ -122,10 +122,10 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
             alt={product.name}
             fill
             unoptimized
-            className={`${isGameOrSoftware ? 'object-cover' : 'object-contain'} transition-all duration-150 ease-out will-change-transform ${
+            className={`object-cover scale-[0.8] transition-all duration-150 ease-out will-change-transform ${
               shouldBeGrayscale ? 'grayscale group-hover:grayscale-0' : ''
             } ${
-              !isDigital ? 'group-hover:scale-[1.2] group-hover:-rotate-[10deg] group-hover:translate-x-[-10%] group-hover:translate-y-[-10%]' : ''
+              !isDigital ? 'group-hover:scale-[0.96] group-hover:-rotate-[10deg] group-hover:translate-x-[-10%] group-hover:translate-y-[-10%]' : ''
             }`}
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             onError={(e) => {
