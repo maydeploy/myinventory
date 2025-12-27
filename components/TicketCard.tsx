@@ -87,8 +87,13 @@ export default function TicketCard({ product, onClick }: TicketCardProps) {
               src={imageSrc}
               alt={product.name}
               fill
+              unoptimized
               className="object-cover blur-sm scale-110"
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              onError={(e) => {
+                console.error('Ticket image failed to load:', imageSrc)
+                e.currentTarget.style.display = 'none'
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black/90" />
           </>

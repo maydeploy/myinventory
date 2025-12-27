@@ -88,10 +88,15 @@ function ProductListItem({
             src={imageSrc}
             alt={product.name}
             fill
+            unoptimized
             className={`${isGameOrSoftware ? 'object-cover' : 'object-contain'} ${
               isDigital ? 'grayscale group-hover:grayscale-0' : ''
             } transition-all duration-150`}
             sizes="48px"
+            onError={(e) => {
+              console.error('Thumbnail failed to load:', imageSrc)
+              e.currentTarget.style.display = 'none'
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-lg bg-white text-[#c9c9c9]">

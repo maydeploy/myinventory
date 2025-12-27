@@ -75,8 +75,13 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                   src={imageSrc}
                   alt={product.name}
                   fill
+                  unoptimized
                   className={isGameOrSoftware ? 'object-cover' : 'object-contain'}
                   sizes="400px"
+                  onError={(e) => {
+                    console.error('Detail image failed to load:', imageSrc)
+                    e.currentTarget.style.display = 'none'
+                  }}
                 />
               </div>
             )}
