@@ -40,7 +40,9 @@ export default function DigitalCategorySections({
       {/* Games Section */}
       {gameProducts.length > 0 && (
         <section id="section-game">
-          <h2 className="text-2xl font-mono text-ink mb-6 uppercase tracking-wider">Games</h2>
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl font-mono text-ink mb-6 uppercase tracking-wider">Games</h2>
+          </div>
           <ProductGrid products={gameProducts} onProductClick={onProductClick} />
         </section>
       )}
@@ -48,7 +50,9 @@ export default function DigitalCategorySections({
       {/* Software Section */}
       {softwareProducts.length > 0 && (
         <section id="section-software">
-          <h2 className="text-2xl font-mono text-ink mb-6 uppercase tracking-wider">Software</h2>
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl font-mono text-ink mb-6 uppercase tracking-wider">Software</h2>
+          </div>
           <ProductGrid products={softwareProducts} onProductClick={onProductClick} />
         </section>
       )}
@@ -56,7 +60,9 @@ export default function DigitalCategorySections({
       {/* Watchlist Section */}
       {watchlistProducts.length > 0 && (
         <section id="section-watchlist">
-          <h2 className="text-2xl font-mono text-ink mb-6 uppercase tracking-wider">Watch List</h2>
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl font-mono text-ink mb-6 uppercase tracking-wider">Watch List</h2>
+          </div>
           <ProductGrid products={watchlistProducts} onProductClick={onProductClick} />
         </section>
       )}

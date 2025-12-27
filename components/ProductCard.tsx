@@ -64,6 +64,7 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
 
   const imageSrc = (isDark && product.darkModeCoverImage) ? product.darkModeCoverImage : product.coverImage
   const isGameOrSoftware = product.category === 'game' || product.category === 'software'
+  const shouldBeGrayscale = product.category === 'game' || product.category === 'watchlist'
 
   const handleClick = () => {
     if (product.url) {
@@ -122,7 +123,7 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
             fill
             unoptimized
             className={`${isGameOrSoftware ? 'object-cover' : 'object-contain'} transition-all duration-150 ease-out will-change-transform ${
-              isDigital ? 'grayscale group-hover:grayscale-0' : ''
+              shouldBeGrayscale ? 'grayscale group-hover:grayscale-0' : ''
             } ${
               !isDigital ? 'group-hover:scale-[1.2] group-hover:-rotate-[10deg] group-hover:translate-x-[-10%] group-hover:translate-y-[-10%]' : ''
             }`}

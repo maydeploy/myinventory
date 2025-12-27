@@ -41,6 +41,7 @@ function ProductListItem({
   const isDigital = isDigitalCategory(product.category)
   const imageSrc = (isDark && product.darkModeCoverImage) ? product.darkModeCoverImage : product.coverImage
   const isGameOrSoftware = product.category === 'game' || product.category === 'software'
+  const shouldBeGrayscale = product.category === 'game' || product.category === 'watchlist'
   const [isHovered, setIsHovered] = useState(false)
 
   const handleClick = () => {
@@ -90,7 +91,7 @@ function ProductListItem({
             fill
             unoptimized
             className={`${isGameOrSoftware ? 'object-cover' : 'object-contain'} ${
-              isDigital ? 'grayscale group-hover:grayscale-0' : ''
+              shouldBeGrayscale ? 'grayscale group-hover:grayscale-0' : ''
             } transition-all duration-150`}
             sizes="48px"
             onError={(e) => {
