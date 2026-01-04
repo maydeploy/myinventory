@@ -54,6 +54,49 @@ function getUrlFromFiles(prop: any): string | undefined {
   return f?.file?.url ?? f?.external?.url
 }
 
+// Extract file metadata for refreshing expired URLs
+function getFileMetadata(prop: any): { url?: string; expiryTime?: string } | undefined {
+  const f = prop?.files?.[0]
+  if (f?.file) {
+    return {
+      url: f.file.url,
+      expiryTime: f.file.expiry_time,
+    }
+  }
+  if (f?.external) {
+    return {
+      url: f.external.url,
+    }
+  }
+  return undefined
+}
+
+// Proxy Notion image URLs to avoid expiration and authentication issues
+// Also includes metadata for refreshing expired URLs
+function proxyImageUrl(
+  url: string | undefined,
+  pageId?: string,
+  propertyName?: string,
+  isCover?: boolean
+): string {
+  if (!url) return ''
+  
+  // If it's a Notion file URL (AWS S3), proxy it through our API with metadata
+  if (url.includes('amazonaws.com') || url.includes('notion.so')) {
+    // Build query params manually to avoid double-encoding
+    const params: string[] = []
+    params.push(`url=${encodeURIComponent(url)}`)
+    if (pageId) params.push(`pageId=${encodeURIComponent(pageId)}`)
+    if (propertyName) params.push(`property=${encodeURIComponent(propertyName)}`)
+    if (isCover) params.push('cover=true')
+    // Use relative URL - browser will resolve it to the current origin
+    return `/api/images?${params.join('&')}`
+  }
+  
+  // External URLs (like Unsplash) can be used directly
+  return url
+}
+
 function getSampleProducts(): Product[] {
   return [
     {
@@ -220,6 +263,10 @@ export async function GET() {
     // If the Notion credentials aren't set (common in local dev / previews),
     // return sample data instead of throwing.
     if (!notion || !databaseId) {
+      console.warn('Notion API not configured. Missing:', {
+        hasApiKey: !!notionApiKey,
+        hasDatabaseId: !!databaseId,
+      })
       return NextResponse.json({ products: getSampleProducts() })
     }
 
@@ -258,29 +305,51 @@ export async function GET() {
 
     const products: Product[] = allResults.map((page: any) => {
       const properties = page.properties
+      const pageId = page.id
 
       // Extract cover image
       let coverImage = ''
+      let coverImageSource: 'cover' | 'property' = 'cover'
+      let coverPropertyName = ''
+      
       if (page.cover?.type === 'external') {
         coverImage = page.cover.external.url
+        coverImageSource = 'cover'
       } else if (page.cover?.type === 'file') {
         coverImage = page.cover.file.url
+        coverImageSource = 'cover'
       } else {
         // Prefer your explicit property: "Cover Image" (Files & media)
-        coverImage =
-          getUrlFromFiles(properties['Cover Image']) ||
-          // Back-compat fallbacks
-          getUrlFromFiles(properties.Image) ||
-          ''
+        const coverImageProp = properties['Cover Image'] || properties.Image
+        coverImage = getUrlFromFiles(coverImageProp) || ''
+        coverImageSource = 'property'
+        coverPropertyName = properties['Cover Image'] ? 'Cover Image' : 'Image'
       }
 
       // Extract dark mode cover image (Notion property: "Dark Mode Cover Image" - Files & media)
-      const darkModeCoverImage =
-        getUrlFromFiles(properties['Dark Mode Cover Image']) ||
-        // Back-compat fallbacks (if you used a different name earlier)
-        getUrlFromFiles(properties['Dark Cover Image']) ||
-        getUrlFromFiles(properties['Dark Cover']) ||
-        ''
+      const darkModeProp = 
+        properties['Dark Mode Cover Image'] ||
+        properties['Dark Cover Image'] ||
+        properties['Dark Cover']
+      let darkModeCoverImage = getUrlFromFiles(darkModeProp) || ''
+      const darkModePropertyName = 
+        properties['Dark Mode Cover Image'] ? 'Dark Mode Cover Image' :
+        properties['Dark Cover Image'] ? 'Dark Cover Image' :
+        properties['Dark Cover'] ? 'Dark Cover' : ''
+
+      // Proxy Notion image URLs to avoid expiration issues, with metadata for refresh
+      coverImage = proxyImageUrl(
+        coverImage,
+        pageId,
+        coverImageSource === 'cover' ? undefined : coverPropertyName,
+        coverImageSource === 'cover'
+      )
+      darkModeCoverImage = proxyImageUrl(
+        darkModeCoverImage,
+        pageId,
+        darkModePropertyName || undefined,
+        false
+      )
 
       // Extract title/name
       const name =
@@ -346,11 +415,20 @@ export async function GET() {
       }
     })
 
+    console.log(`Successfully fetched ${products.length} products from Notion`)
     return NextResponse.json({ products })
   } catch (error) {
     console.error('Error fetching from Notion:', error)
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      })
+    }
 
     // Return sample data when Notion is unavailable
+    console.warn('Falling back to sample data due to Notion error')
     return NextResponse.json({ products: getSampleProducts() })
   }
 }

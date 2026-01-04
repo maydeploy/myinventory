@@ -27,6 +27,8 @@ const nextConfig = {
         hostname: 'm.media-amazon.com',
       },
     ],
+    // Allow images from our own API proxy
+    domains: ['localhost'],
   },
 }
 

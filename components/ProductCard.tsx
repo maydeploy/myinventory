@@ -74,11 +74,6 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
     }
   }, [product.note, supportsHover, isInView])
 
-  // Use ticket layout for watchlist digital products
-  if (isWatchlist) {
-    return <TicketCard product={product} onClick={onClick} />
-  }
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || !isDigital || !supportsHover) return
 
@@ -131,7 +126,7 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
       onMouseLeave={handleMouseLeave}
       onMouseEnter={handleMouseEnter}
       className={`
-        product-card group relative bg-white border border-border hover:border-accent transition-all cursor-pointer overflow-visible
+        product-card group relative bg-white ${!isDigital ? 'border border-border hover:border-accent' : ''} transition-all cursor-pointer overflow-visible
         flex flex-col h-full
         ${isWishlist ? 'border-dashed' : ''}
         ${product.url ? 'cursor-pointer' : 'cursor-default'}
@@ -175,7 +170,7 @@ export default function ProductCard({ product, onClick, onHoverChange }: Product
             alt={product.name}
             fill
             unoptimized
-            className={`object-cover scale-[0.8] transition-all duration-150 ease-out will-change-transform ${
+            className={`object-cover ${isDigital ? '' : 'scale-[0.8]'} transition-all duration-150 ease-out will-change-transform ${
               shouldBeGrayscale ? 'grayscale' : ''
             } ${
               shouldBeGrayscale && supportsHover ? 'hover:grayscale-0' : ''
